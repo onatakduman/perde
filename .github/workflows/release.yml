@@ -113,7 +113,8 @@ jobs:
             if ! answer=$(curl --fail-with-body -sS -H "Authorization: Bearer $TOKEN" "$@"); then
               echo "$answer" >&2
               message=$(jq -r '.error.message // empty' <<<"$answer" 2>/dev/null || true)
-              echo "::error::Chrome Web Store: ${message:-the request was refused}"
+              # To stderr: stdout is what the caller captures, and the job page reads both.
+              echo "::error::Chrome Web Store: ${message:-the request was refused}" >&2
               exit 1
             fi
             echo "$answer"

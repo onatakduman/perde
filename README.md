@@ -118,6 +118,8 @@ The job signs in as a Google Cloud service account through workload identity fed
 
 From then on every release tag uploads the package as a new draft, and you submit it for review in the dashboard. Set the variable `CWS_AUTO_PUBLISH` to `true` to have the workflow submit it for review as well. To upload without a new tag, start the Release workflow by hand with **store_upload** ticked (Actions > Release > Run workflow).
 
+The store refuses a new package while the item is in review ("You may not edit or publish an item that is in review"), and the job fails with that message. Run the workflow again by hand once the review is over, or cancel the submission in the dashboard first.
+
 ## License
 
 [MIT](LICENSE). Third-party components are listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
