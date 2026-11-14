@@ -109,14 +109,20 @@ jobs:
 
           # Prints the answer either way; a failed request stops the job with the store's own message.
           call() {
-            local answer
+            local answer message
             if ! answer=$(curl --fail-with-body -sS -H "Authorization: Bearer $TOKEN" "$@"); then
               echo "$answer" >&2
-              echo "::error::The Chrome Web Store refused the request (see the message above)"
+              message=$(jq -r '.error.message // empty' <<<"$answer" 2>/dev/null || true)
+              echo "::error::Chrome Web Store: ${message:-the request was refused}"
               exit 1
             fi
             echo "$answer"
           }
+
+          # Where the item stands before anything is sent: what is published and what is in review.
+          # A refusal here means the service account is not linked in the Developer Dashboard.
+          echo "Item status before the upload:"
+          call "$base/v2/$item:fetchStatus" | jq 'del(.publicKey)'
 
           answer=$(call -X POST "$base/upload/v2/$item:upload" -H "Content-Type: application/zip" --data-binary @"$package")
           echo "$answer" | jq .
