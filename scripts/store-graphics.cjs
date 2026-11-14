@@ -1,5 +1,6 @@
-// Builds every Chrome Web Store graphic in store-assets/ from the real extension:
-// five 1280x800 screenshots, the 440x280 and 1400x560 promo tiles, and the 128px store icon.
+// Builds every Chrome Web Store graphic from the real extension, once per listing language
+// (store-assets/en and store-assets/tr): five 1280x800 screenshots and the 440x280 and 1400x560
+// promo tiles. The 128px store icon is shared.
 // Each screenshot is a real capture of the extension set into store-assets/src/compose.html.
 //
 //   PLAYWRIGHT_CORE=<path to playwright-core> CHROMIUM=<path to a Chromium binary> node scripts/store-graphics.cjs
@@ -18,17 +19,6 @@ const ASSETS = path.join(ROOT, 'store-assets');
 const SOURCES = path.join(ASSETS, 'src');
 const USER_AGENT = 'PerdeStoreGraphics/0.2';
 
-const DEMO = fs.readFileSync(path.join(SOURCES, 'demo.html'), 'utf8');
-const PROFILE_PAGE = '<!doctype html><meta charset="utf-8"><title>Deniz Karaca - filmography</title><body style="font:18px/1.5 Georgia,serif;max-width:760px;margin:40px auto"><h1>Deniz Karaca</h1><p>Films, awards and interviews.</p></body>';
-const PORTRAITS_PAGE = `<!doctype html><meta charset="utf-8"><title>Portraits</title>
-<body style="margin:0;padding:28px 40px;font:16px/1.5 Georgia,serif;background:#fff">
-<h2 style="margin:0 0 18px;font-size:26px">Portraits of the week</h2>
-<div style="display:flex;gap:20px">
-  <img src="/img/blocked.jpg" alt="" style="width:250px;height:330px;object-fit:cover">
-  <img src="/img/other.jpg" alt="" style="width:250px;height:330px;object-fit:cover">
-  <img src="/img/another.jpg" alt="" style="width:250px;height:330px;object-fit:cover">
-</div></body>`;
-
 // Historical figures, public-domain photographs; served under neutral names so only the face can match.
 const PORTRAITS = {
   reference: 'File:Einstein_1921_by_F_Schmutzer_-_restoration.jpg',
@@ -37,39 +27,48 @@ const PORTRAITS = {
   another: 'File:Marie_Curie_c._1920s.jpg',
 };
 
-const SHOTS = [
-  {
-    file: 'screenshot-1-page.png',
-    headline: 'Blur the people you would rather not see',
-    sub: 'Add a name. Text, images and video about that person are covered on every site, before the page appears.',
-    main: 'page',
-    float: 'popup',
+// Everything that differs between the two listing languages.
+const LOCALES = {
+  en: {
+    profileTitle: 'Deniz Karaca - filmography',
+    profileText: 'Films, awards and interviews.',
+    portraitsHeading: 'Portraits of the week',
+    tagline: 'Blur what you choose not to see',
+    words: ['Text', 'Images', 'Video'],
+    shots: [
+      ['screenshot-1-page.png', 'page', 'popup', 'Blur the people you would rather not see', 'Add a name. Text, images and video about that person are covered on every site, before the page appears.'],
+      ['screenshot-2-faces.png', 'faces', null, 'Recognises faces, not only names', 'A photo that shows a blocked person is covered even when no caption mentions them. The check runs on your computer.'],
+      ['screenshot-3-whole-page.png', 'notice', null, 'Covers the whole page when it is about them', 'Go back, or show it anyway.'],
+      ['screenshot-4-looks.png', 'looks', 'fit', 'Blur, grey block, or gone', 'Choose how covered content looks, and let a click reveal it if you want.'],
+      ['screenshot-5-private.png', 'settings', 'fit', 'No account, no server, no tracking', 'Your list and the reference faces stay on your device. Only a name you add is looked up on Wikipedia, and you can turn that off.'],
+    ],
   },
-  {
-    file: 'screenshot-2-faces.png',
-    headline: 'Recognises faces, not only names',
-    sub: 'A photo that shows a blocked person is covered even when no caption mentions them. The check runs on your computer.',
-    main: 'faces',
+  tr: {
+    profileTitle: 'Deniz Karaca - filmografi',
+    profileText: 'Filmler, ödüller ve söyleşiler.',
+    portraitsHeading: 'Haftanın portreleri',
+    tagline: 'Görmek istemediğini bulanıklaştır',
+    words: ['Yazı', 'Görsel', 'Video'],
+    shots: [
+      ['screenshot-1-page.png', 'page', 'popup', 'Görmek istemediğin kişileri bulanıklaştır', 'Bir isim ekle. O kişiyle ilgili yazı, görsel ve videolar her sitede, sayfa görünmeden kapatılır.'],
+      ['screenshot-2-faces.png', 'faces', null, 'Yalnızca isimleri değil, yüzleri de tanır', 'Altında adı geçmese bile engellediğin kişiyi gösteren fotoğraf kapatılır. Kontrol senin bilgisayarında yapılır.'],
+      ['screenshot-3-whole-page.png', 'notice', null, 'Sayfa onunla ilgiliyse tamamını kapatır', 'Geri dön ya da yine de göster.'],
+      ['screenshot-4-looks.png', 'looks', 'fit', 'Bulanık, gri blok ya da hiç', 'Kapatılan içeriğin nasıl görüneceğini seç; istersen tek tıkla açılsın.'],
+      ['screenshot-5-private.png', 'settings', 'fit', 'Hesap yok, sunucu yok, takip yok', 'Listen ve referans yüzler cihazında kalır. Yalnızca eklediğin isim Wikipedia\'da aranır; bunu da kapatabilirsin.'],
+    ],
   },
-  {
-    file: 'screenshot-3-whole-page.png',
-    headline: 'Covers the whole page when it is about them',
-    sub: 'Go back, or show it anyway.',
-    main: 'notice',
-  },
-  {
-    file: 'screenshot-4-looks.png',
-    headline: 'Blur, grey block, or gone',
-    sub: 'Choose how covered content looks, and let a click reveal it if you want.',
-    main: 'looks',
-  },
-  {
-    file: 'screenshot-5-private.png',
-    headline: 'No account, no server, no tracking',
-    sub: 'Your list and the reference faces stay on your device. Only a name you add is looked up on Wikipedia, and you can turn that off.',
-    main: 'settings',
-  },
-];
+};
+
+// The test browser always runs in English, and Chrome picks an extension's language from its own
+// UI language. For the Turkish captures, load a copy of the extension whose English messages are
+// the Turkish ones.
+function extensionFor(locale) {
+  if (locale === 'en') return { dir: EXTENSION, cleanup: () => {} };
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'perde-ext-'));
+  fs.cpSync(EXTENSION, dir, { recursive: true });
+  fs.copyFileSync(path.join(EXTENSION, '_locales', locale, 'messages.json'), path.join(dir, '_locales', 'en', 'messages.json'));
+  return { dir, cleanup: () => fs.rmSync(dir, { recursive: true, force: true }) };
+}
 
 async function downloadPortraits() {
   const titles = Object.values(PORTRAITS).join('|');
@@ -87,7 +86,19 @@ async function downloadPortraits() {
 }
 
 // Real captures of the extension, at twice the size they are shown, as data URLs.
-async function capture(portraits) {
+async function capture(locale, portraits) {
+  const strings = LOCALES[locale];
+  const demo = fs.readFileSync(path.join(SOURCES, `demo.${locale}.html`), 'utf8');
+  const profilePage = `<!doctype html><meta charset="utf-8"><title>${strings.profileTitle}</title><body style="font:18px/1.5 Georgia,serif;max-width:760px;margin:40px auto"><h1>Deniz Karaca</h1><p>${strings.profileText}</p></body>`;
+  const portraitsPage = `<!doctype html><meta charset="utf-8"><title>${strings.portraitsHeading}</title>
+<body style="margin:0;padding:28px 40px;font:16px/1.5 Georgia,serif;background:#fff">
+<h2 style="margin:0 0 18px;font-size:26px">${strings.portraitsHeading}</h2>
+<div style="display:flex;gap:20px">
+  <img src="/img/blocked.jpg" alt="" style="width:250px;height:330px;object-fit:cover">
+  <img src="/img/other.jpg" alt="" style="width:250px;height:330px;object-fit:cover">
+  <img src="/img/another.jpg" alt="" style="width:250px;height:330px;object-fit:cover">
+</div></body>`;
+  const extension = extensionFor(locale);
   const server = http.createServer((request, response) => {
     const image = request.url.match(/^\/img\/(\w+)\.jpg/);
     if (image && portraits?.[image[1]]) {
@@ -96,7 +107,7 @@ async function capture(portraits) {
       return;
     }
     response.setHeader('content-type', 'text/html; charset=utf-8');
-    response.end(request.url.startsWith('/person') ? PROFILE_PAGE : request.url.startsWith('/portraits') ? PORTRAITS_PAGE : DEMO);
+    response.end(request.url.startsWith('/person') ? profilePage : request.url.startsWith('/portraits') ? portraitsPage : demo);
   });
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
   const origin = `http://127.0.0.1:${server.address().port}`;
@@ -105,7 +116,7 @@ async function capture(portraits) {
   const context = await chromium.launchPersistentContext(profile, {
     headless: false,
     executablePath: process.env.CHROMIUM || undefined,
-    args: ['--headless=new', `--disable-extensions-except=${EXTENSION}`, `--load-extension=${EXTENSION}`],
+    args: ['--headless=new', `--disable-extensions-except=${extension.dir}`, `--load-extension=${extension.dir}`],
     viewport: { width: 900, height: 700 },
     deviceScaleFactor: 2,
   });
@@ -162,38 +173,47 @@ async function capture(portraits) {
     await context.close();
     server.close();
     fs.rmSync(profile, { recursive: true, force: true });
+    extension.cleanup();
   }
   return shots;
 }
 
-async function compose(shots) {
+async function compose(locale, shots) {
+  const strings = LOCALES[locale];
+  const out = path.join(ASSETS, locale);
+  fs.mkdirSync(out, { recursive: true });
   const browser = await chromium.launch({ executablePath: process.env.CHROMIUM || undefined });
   const page = await browser.newPage();
   try {
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto(`file://${path.join(SOURCES, 'compose.html')}`);
-    for (const shot of SHOTS) {
-      if (!shots[shot.main]) {
-        console.log(`skipped ${shot.file} (no capture)`);
+    for (const [file, main, float, headline, sub] of strings.shots) {
+      if (!shots[main]) {
+        console.log(`skipped ${locale}/${file} (no capture)`);
         continue;
       }
       await page.evaluate(
-        async ({ headline, sub, main, float }) => {
-          document.getElementById('headline').textContent = headline;
-          document.getElementById('sub').textContent = sub;
-          const images = [['main', main], ['float', float]];
-          for (const [id, src] of images) {
+        async (data) => {
+          document.documentElement.lang = data.locale;
+          document.getElementById('headline').textContent = data.headline;
+          document.getElementById('sub').textContent = data.sub;
+          // A settings capture is shown whole; a page capture runs off the right edge.
+          document.querySelector('.main').style.width = data.fit ? '704px' : '';
+          for (const [id, src] of [['main', data.main], ['float', data.float]]) {
             const image = document.getElementById(id);
-            if (src) image.src = src;
-            else image.removeAttribute('src');
-            if (src) await image.decode();
+            if (src) {
+              image.src = src;
+              await image.decode();
+            } else {
+              image.removeAttribute('src');
+            }
           }
           await document.fonts.ready;
         },
-        { headline: shot.headline, sub: shot.sub, main: shots[shot.main], float: shot.float ? shots[shot.float] : null },
+        { locale, headline, sub, main: shots[main], float: float && float !== 'fit' ? shots[float] : null, fit: float === 'fit' },
       );
-      await page.screenshot({ path: path.join(ASSETS, shot.file) });
-      console.log(shot.file);
+      await page.screenshot({ path: path.join(out, file) });
+      console.log(`${locale}/${file}`);
     }
 
     for (const [source, file, width, height] of [
@@ -202,22 +222,28 @@ async function compose(shots) {
     ]) {
       await page.setViewportSize({ width, height });
       await page.goto(`file://${path.join(SOURCES, source)}`);
-      await page.evaluate(async (popup) => {
-        const image = document.getElementById('popup');
-        if (image) {
-          image.src = popup;
-          await image.decode();
-        }
-        await document.fonts.ready;
-      }, shots.popup);
-      await page.screenshot({ path: path.join(ASSETS, file) });
-      console.log(file);
+      await page.evaluate(
+        async (data) => {
+          document.documentElement.lang = data.locale;
+          document.getElementById('tagline').textContent = data.tagline;
+          document.querySelectorAll('#words span').forEach((span, index) => {
+            span.textContent = data.words[index];
+          });
+          const image = document.getElementById('popup');
+          if (image) {
+            image.src = data.popup;
+            await image.decode();
+          }
+          await document.fonts.ready;
+        },
+        { locale, tagline: strings.tagline, words: strings.words, popup: shots.popup },
+      );
+      await page.screenshot({ path: path.join(out, file) });
+      console.log(`${locale}/${file}`);
     }
   } finally {
     await browser.close();
   }
-  fs.copyFileSync(path.join(EXTENSION, 'icons', 'icon-128.png'), path.join(ASSETS, 'store-icon-128.png'));
-  console.log('store-icon-128.png');
 }
 
 (async () => {
@@ -225,7 +251,11 @@ async function compose(shots) {
   try {
     portraits = await downloadPortraits();
   } catch (error) {
-    console.log(`no portraits (${error.message}); the face screenshot will be skipped`);
+    console.log(`no portraits (${error.message}); the face screenshots will be skipped`);
   }
-  await compose(await capture(portraits));
+  for (const locale of Object.keys(LOCALES)) {
+    await compose(locale, await capture(locale, portraits));
+  }
+  fs.copyFileSync(path.join(EXTENSION, 'icons', 'icon-128.png'), path.join(ASSETS, 'store-icon-128.png'));
+  console.log('store-icon-128.png');
 })();

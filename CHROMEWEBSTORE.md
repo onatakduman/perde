@@ -55,6 +55,43 @@ Perde is open source. Report a problem or suggest a change at: https://github.co
 Version 0.2.0 — first public release.
 ```
 
+**Detailed Description, Turkish** (paste into the Turkish listing; in the dashboard choose the language at the top of the Store listing tab)
+
+```
+Perde, görmek istemediğin kişilerle ilgili içeriği kapatır. Bir isim ekle; o kişiden bahseden ya da onu gösteren yazı, görsel ve videolar her sitede, sayfa görünmeden bulanıklaştırılır.
+
+ÖZELLİKLER
+• Yazı — isim ve diğer yazımları büyük/küçük harf ve aksan farkı gözetmeden eşleşir; eşleşmenin içinde olduğu kartın tamamı kapanır: arama sonucu, gönderi, küçük resmiyle video kutusu.
+• Görseller — resim altı yazısı, bağlantısı ya da dosya adıyla tarif edilen görseller hemen kapanır. Yalnızca kişiyi gösteren görseller yüzünden tanınır.
+• Video — oynayan video, kişi ekrandayken kapanır.
+• Tüm sayfa — başlığı eşleşen sayfa tümüyle kapanır; geri dönebilir ya da yine de gösterebilirsin.
+• Bakmadan referans yüz — Perde, kişinin herkese açık fotoğraflarını Wikipedia'da bulur ve yüzü onlardan öğrenir; kaçınmak istediğin birinin fotoğraflarını aramana gerek kalmaz. Sana hiçbir fotoğraf gösterilmez, hiçbiri saklanmaz.
+• Üç görünüm — bulanık, gri blok ya da içeriği sayfadan kaldır.
+• Tıklayınca göster — tek tık bulanık bloğu açar. Kapatılabilir.
+• Site bazında duraklatma, araç çubuğu simgesinde sayaç ve dosyaya yedekleme.
+• Türkçe ve İngilizce.
+
+NASIL KULLANILIR
+1. Perde simgesine tıkla ve bir isim yaz; ya da herhangi bir sayfada bir ismi seç, sağ tıkla ve "Perde: engelle"yi seç.
+2. Her zamanki gibi gezin. Kapatılan içerik bulanık görünür; simge o sayfada kaç bloğun kapatıldığını gösterir.
+3. Diğer yazımları eklemek, referans yüzleri yönetmek, görünümü değiştirmek ya da bir siteyi duraklatmak için "Tüm ayarlar"ı aç.
+
+NE BEKLEMELİ
+Yazı ve tarif edilen görseller sen görmeden kapanır. Yüz kontrolü gereken bir görsel, kontrol bitene kadar bulanık kalır. Video saniyede yaklaşık iki kez kontrol edilir; bu yüzden bir sahnenin ilk anı görünebilir. Yüz eşleştirme kusursuz değildir: benzeyen kişiler kapanabilir, alışılmadık fotoğraflar kaçabilir; hassasiyeti sıkılaştırıp gevşetebilirsin. Korumalı (DRM) videolar kontrol edilemez.
+
+GİZLİLİK
+Perde'de hesap, sunucu ya da analitik yoktur. Engel listen, referans yüzler ve ayarların cihazında kalır. Sayfalar tarayıcının içinde okunur, görseller tarayıcının içinde karşılaştırılır.
+Dışarı giden tek şey eklediğin isimdir: diğer yazımları ve referans yüzleri bulmak için Wikipedia, Wikidata ve Wikimedia Commons'ta aranır. Bunu ayarlardan kapatabilirsin.
+
+İZİNLER
+• "Tüm web sitelerindeki tüm verilerinizi okuma ve değiştirme" — engellenen bir isim her sitede karşına çıkabilir; bu yüzden Perde açtığın her sayfaya bakmak zorundadır. Okuduğu hiçbir şey tarayıcından dışarı çıkmaz.
+
+DESTEK
+Perde açık kaynaklıdır. Sorun bildirmek ya da öneride bulunmak için: https://github.com/onatakduman/perde/issues
+
+Sürüm 0.2.0 — ilk genel sürüm.
+```
+
 **Category** [REQUIRED]
 
 Productivity (TODO confirm in the dashboard; the current category list also has "Tools" and "Privacy & Security", either of which fits)
@@ -65,22 +102,22 @@ Covers web content (text, images and video) that mentions or shows people the us
 
 **Primary Language** [REQUIRED]
 
-English (the package also contains a Turkish locale)
+English. The package also has a Turkish locale, so the dashboard offers a Turkish listing too: fill in both.
 
 ## Graphics & Assets
 
 | Asset | Dimensions | Status | Filename |
 |-------|-----------|--------|----------|
 | Store Icon [REQUIRED] | 128×128 PNG | ✅ Ready | `store-assets/store-icon-128.png` |
-| Screenshot 1 [REQUIRED] | 1280×800 | ✅ Ready | `store-assets/screenshot-1-page.png` |
-| Screenshot 2 [RECOMMENDED] | 1280×800 | ✅ Ready | `store-assets/screenshot-2-faces.png` |
-| Screenshot 3 [RECOMMENDED] | 1280×800 | ✅ Ready | `store-assets/screenshot-3-whole-page.png` |
-| Screenshot 4 | 1280×800 | ✅ Ready | `store-assets/screenshot-4-looks.png` |
-| Screenshot 5 | 1280×800 | ✅ Ready | `store-assets/screenshot-5-private.png` |
-| Small Promo Tile [RECOMMENDED] | 440×280 | ✅ Ready | `store-assets/promo-small-440x280.png` |
-| Marquee Promo Tile | 1400×560 | ✅ Ready | `store-assets/promo-marquee-1400x560.png` |
+| Screenshot 1 [REQUIRED] | 1280×800 | ✅ Ready | `store-assets/<lang>/screenshot-1-page.png` |
+| Screenshot 2 [RECOMMENDED] | 1280×800 | ✅ Ready | `store-assets/<lang>/screenshot-2-faces.png` |
+| Screenshot 3 [RECOMMENDED] | 1280×800 | ✅ Ready | `store-assets/<lang>/screenshot-3-whole-page.png` |
+| Screenshot 4 | 1280×800 | ✅ Ready | `store-assets/<lang>/screenshot-4-looks.png` |
+| Screenshot 5 | 1280×800 | ✅ Ready | `store-assets/<lang>/screenshot-5-private.png` |
+| Small Promo Tile [RECOMMENDED] | 440×280 | ✅ Ready | `store-assets/<lang>/promo-small-440x280.png` |
+| Marquee Promo Tile | 1400×560 | ✅ Ready | `store-assets/<lang>/promo-marquee-1400x560.png` |
 
-All of these are rebuilt by `npm run store-graphics` (see `scripts/store-graphics.cjs`); rerun it whenever the UI changes.
+`<lang>` is `en` or `tr`: there is one complete set per listing language. Upload the `en` set to the English listing and the `tr` set to the Turkish one. All of them are rebuilt by `npm run store-graphics` (see `scripts/store-graphics.cjs`); rerun it whenever the UI changes.
 
 ### Screenshot Notes
 
@@ -92,7 +129,7 @@ Each screenshot is a real capture of the extension set beside a headline.
 4. "Blur, grey block, or gone": the three looks in the settings page.
 5. "No account, no server, no tracking": the settings page with the block list.
 
-The demo page and its names are invented (`store-assets/src/demo.html`), so no other company's site or logo appears.
+The demo page and its names are invented (`store-assets/src/demo.en.html`, `demo.tr.html`), so no other company's site or logo appears.
 
 ## Permissions Justification
 

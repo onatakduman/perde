@@ -7,6 +7,14 @@
     font-weight: 400 700;
     font-stretch: 75% 100%;
     src: url('../../perde/vendor/fonts/instrument-sans-latin.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+2000-206F;
+  }
+  @font-face {
+    font-family: 'Instrument Sans';
+    font-weight: 400 700;
+    font-stretch: 75% 100%;
+    src: url('../../perde/vendor/fonts/instrument-sans-latin-ext.woff2') format('woff2');
+    unicode-range: U+0100-02BA, U+1E00-1E9F;
   }
   html, body { margin: 0; }
   body {
@@ -26,9 +34,9 @@
   .popup { position: absolute; right: 96px; top: 70px; width: 342px; border: 1.5px solid #111; box-shadow: 0 30px 70px rgb(0 0 0 / 0.2); }
   .popup img { display: block; width: 100%; }
 </style>
-<div class="top"><img src="../../perde/icons/icon.svg" alt="" /><span>Blur what you choose not to see</span></div>
+<div class="top"><img src="../../perde/icons/icon.svg" alt="" /><span id="tagline">Blur what you choose not to see</span></div>
 <div>
   <h1>Perde</h1>
-  <p><span>Text</span><span>Images</span><span>Video</span></p>
+  <p id="words"><span>Text</span><span>Images</span><span>Video</span></p>
 </div>
 <div class="popup"><img id="popup" alt="" /></div>
