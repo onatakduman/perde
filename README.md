@@ -1,4 +1,12 @@
+<p align="center">
+  <img src="store-assets/en/promo-marquee-1400x560.png" alt="Perde: blur what you choose not to see. Text, images and video." width="100%">
+</p>
+
 # Perde
+
+[![CI](https://github.com/onatakduman/perde/actions/workflows/ci.yml/badge.svg)](https://github.com/onatakduman/perde/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/onatakduman/perde)](https://github.com/onatakduman/perde/releases/latest)
+[![License: MIT](https://img.shields.io/github/license/onatakduman/perde)](LICENSE)
 
 *Türkçe: [README.tr.md](README.tr.md)*
 
@@ -6,7 +14,30 @@ Perde ("curtain" in Turkish) is a Chrome extension that covers content about peo
 
 Everything is decided on your computer. There is no account, no server and no analytics.
 
-## What it covers
+## Features
+
+- **Names in text, on every site.** Add a name once and it is covered wherever it appears, before the page is painted. Case and accents are ignored, and you can list other spellings such as a surname or a nickname.
+- **As much or as little as you want.** Cover only the name (the default), its line or paragraph, or the whole card around it, thumbnail included.
+- **Images, with or without a caption.** An image is covered when its alt text, file name, link or caption mentions the name. With reference faces, a photo that only shows the person is covered too.
+- **Video.** A playing video is checked about twice a second and covered while the face is on screen.
+- **Whole pages.** A page whose title matches is covered completely, with "Go back" and "Show anyway".
+- **Reference faces without looking at the person.** Perde reads them from Wikipedia and Wikimedia Commons for you. No photo is shown to you or stored.
+- **Three looks.** Blur with adjustable strength, a grey block, or removal from the page. A click reveals a blurred block unless you turn that off.
+- **Quick to add, easy to pause.** Type a name in the popup, or select one on a page and right-click. Pause Perde on a single site or switch it off entirely. The toolbar badge counts what is covered on the page.
+- **Private.** The block list and the face references stay in the browser, and images are compared on your device.
+- **Backup.** Export the list to a file and import it in another browser. The [macOS companion](#macos-companion) reads the same file.
+- **English and Turkish.** The interface follows the browser's language.
+
+## Screenshots
+
+| | |
+|---|---|
+| ![A news page with one card and two lines of text blurred, next to the Perde popup showing 3 covered on this page](store-assets/en/screenshot-1-page.png) | ![Three portraits; the one showing a blocked person is blurred although no caption names them](store-assets/en/screenshot-2-faces.png) |
+| ![A page covered completely, with the notice "This page is covered" and the buttons Go back and Show anyway](store-assets/en/screenshot-3-whole-page.png) | ![The settings for how much is covered and for the look: blur, grey block or remove](store-assets/en/screenshot-4-looks.png) |
+
+![The settings page with the block list: two names, their other spellings and the number of reference faces](store-assets/en/screenshot-5-private.png)
+
+## How content is recognised
 
 | Content | How it is recognised | When it is covered |
 |---|---|---|

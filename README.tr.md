@@ -1,4 +1,12 @@
+<p align="center">
+  <img src="store-assets/tr/promo-marquee-1400x560.png" alt="Perde: görmek istemediğini bulanıklaştır. Yazı, görsel ve video." width="100%">
+</p>
+
 # Perde
+
+[![CI](https://github.com/onatakduman/perde/actions/workflows/ci.yml/badge.svg)](https://github.com/onatakduman/perde/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/onatakduman/perde)](https://github.com/onatakduman/perde/releases/latest)
+[![License: MIT](https://img.shields.io/github/license/onatakduman/perde)](LICENSE)
 
 *English: [README.md](README.md)*
 
@@ -6,7 +14,30 @@ Perde, görmek istemediğin kişilerle ilgili içeriği kapatan bir Chrome eklen
 
 Her karar senin bilgisayarında verilir. Hesap, sunucu ya da analitik yoktur.
 
-## Neleri kapatır
+## Özellikler
+
+- **Yazıdaki isimler, her sitede.** Bir ismi bir kez eklersin; geçtiği her yerde, sayfa ekrana çizilmeden kapanır. Büyük/küçük harf ve aksan farkı gözetilmez; soyadı ya da lakap gibi diğer yazımları da ekleyebilirsin.
+- **İstediğin kadarı.** Yalnızca isim (varsayılan), satırı ya da paragrafı, ya da küçük resmiyle birlikte içinde olduğu kartın tamamı kapanır.
+- **Altında yazı olsun olmasın, görseller.** Alt metni, dosya adı, bağlantısı ya da resim altı yazısı ismi içeren görsel kapanır. Referans yüz varsa, yalnızca kişiyi gösteren fotoğraf da kapanır.
+- **Video.** Oynayan video saniyede yaklaşık iki kez kontrol edilir ve yüz ekrandayken kapanır.
+- **Tüm sayfa.** Başlığı eşleşen sayfa, "Geri dön" ve "Yine de göster" seçenekleriyle tamamen kapanır.
+- **Kişiye bakmadan referans yüz.** Perde yüzleri senin yerine Wikipedia ve Wikimedia Commons'tan okur. Sana hiçbir fotoğraf gösterilmez, hiçbiri saklanmaz.
+- **Üç görünüm.** Gücü ayarlanabilen bulanıklık, gri blok ya da sayfadan kaldırma. Kapatmadığın sürece, bulanık bir bloğa tıklamak onu açar.
+- **Eklemesi hızlı, duraklatması kolay.** İsmi açılır pencereye yaz ya da sayfada seçip sağ tıkla. Perde'yi tek bir sitede duraklatabilir ya da tamamen kapatabilirsin. Araç çubuğundaki rozet, sayfada kaç şeyin kapatıldığını gösterir.
+- **Gizli.** Engel listesi ve yüz referansları tarayıcıda kalır; görseller cihazında karşılaştırılır.
+- **Yedekleme.** Listeyi bir dosyaya aktarıp başka bir tarayıcıda içe aktarabilirsin. [macOS uygulaması](#macos-uygulaması) aynı dosyayı okur.
+- **Türkçe ve İngilizce.** Arayüz, tarayıcının dilini izler.
+
+## Ekran görüntüleri
+
+| | |
+|---|---|
+| ![Bir kartı ve iki satırı bulanıklaştırılmış bir haber sayfası; yanında bu sayfada 3 şeyin kapatıldığını gösteren Perde penceresi](store-assets/tr/screenshot-1-page.png) | ![Üç portre; engellenen kişiyi gösteren, altında ismi yazmadığı halde bulanık](store-assets/tr/screenshot-2-faces.png) |
+| ![Tamamen kapatılmış bir sayfa; "Geri dön" ve "Yine de göster" düğmeli bildirim](store-assets/tr/screenshot-3-whole-page.png) | ![Ne kadarının kapatılacağı ve görünüm ayarları: bulanıklık, gri blok ya da kaldırma](store-assets/tr/screenshot-4-looks.png) |
+
+![Engel listesinin olduğu ayarlar sayfası: iki isim, diğer yazımları ve referans yüz sayıları](store-assets/tr/screenshot-5-private.png)
+
+## İçerik nasıl tanınır
 
 | İçerik | Nasıl tanınır | Ne zaman kapanır |
 |---|---|---|
