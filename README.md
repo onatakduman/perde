@@ -98,11 +98,25 @@ The tests load the unpacked extension into Chromium. Branded Google Chrome no lo
   ```
 
   The tag has to match the manifest version. The workflow tests, packages, and creates a GitHub release with `perde-v<version>.zip` attached.
-- **Chrome Web Store upload** is an optional third job in the release workflow. It stays off until these exist in the repository settings:
-  - variables `CWS_PUBLISHER_ID` (Developer Dashboard, Publisher > Settings) and `CWS_EXTENSION_ID` (the 32-character item id);
-  - secrets `CWS_CLIENT_ID`, `CWS_CLIENT_SECRET` and `CWS_REFRESH_TOKEN`, from a Google Cloud OAuth client with the Chrome Web Store API enabled ([guide](https://developer.chrome.com/docs/webstore/using-api)).
+- **Chrome Web Store upload** is the third job of the release workflow: the same tag also sends the package to the store. The store listing itself (texts, screenshots, privacy answers) cannot be set through the API and stays in the dashboard.
 
-  It uploads the package as a draft. Set the variable `CWS_AUTO_PUBLISH` to `true` to also submit it for review. The store listing itself (texts, screenshots, privacy answers) cannot be set through the API and stays in the dashboard.
+### Chrome Web Store upload
+
+The job signs in as a Google Cloud service account through workload identity federation, so the repository stores no key, password or token. It stays off until four repository variables exist. One-time setup:
+
+1. Run the setup script where `gcloud` is signed in; [Cloud Shell](https://shell.cloud.google.com) is the quickest place. Pick any unused project id.
+
+   ```bash
+   curl -fsSL https://raw.githubusercontent.com/onatakduman/perde/main/scripts/setup-store-upload.sh | bash -s -- my-store-upload-project owner/repository
+   ```
+
+   It creates the project, enables the Chrome Web Store API, creates the service account, and allows only the given repository to act as it. It ends by printing the service account address and two `gh variable set` commands.
+2. In the Chrome Web Store Developer Dashboard, open **Account** and add the printed address as the service account.
+3. Set the repository variables (Settings > Secrets and variables > Actions > Variables):
+   - `CWS_SERVICE_ACCOUNT` and `CWS_WORKLOAD_IDENTITY_PROVIDER`, as printed by the script;
+   - `CWS_PUBLISHER_ID` and `CWS_EXTENSION_ID`, both visible in the address of the item's page in the dashboard: `.../u/0/developer/dashboard/<publisher id>/<extension id>/edit`.
+
+From then on every release tag uploads the package as a new draft, and you submit it for review in the dashboard. Set the variable `CWS_AUTO_PUBLISH` to `true` to have the workflow submit it for review as well. To upload without a new tag, start the Release workflow by hand with **store_upload** ticked (Actions > Release > Run workflow).
 
 ## License
 

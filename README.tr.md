@@ -70,6 +70,18 @@ npm run vendor      # perde/vendor klasörünü (yüz modeli ve yazı tipi) npm 
 
 Testler, paketlenmemiş eklentiyi Chromium'a yükler. Markalı Google Chrome artık `--load-extension` kabul etmediği için Chromium ya da Chrome for Testing gerekir; belirli bir tarayıcı için `CHROMIUM` değişkenini onun dosyasına yönelt.
 
+## Sürekli tümleştirme ve sürümler
+
+- **CI** (`.github/workflows/ci.yml`) `main` dalına her gönderimde ve çekme isteklerinde çalışır: denetimler, Chromium'da uçtan uca testler, mağaza paketi ve macOS uygulamasının derlemesi ile testleri.
+- **Release** (`.github/workflows/release.yml`) bir etiket gönderildiğinde çalışır. `perde/manifest.json` ve `package.json` içindeki sürümü artır, commit'le, sonra:
+
+  ```bash
+  git tag v0.2.2 && git push origin v0.2.2
+  ```
+
+  Etiket, manifest sürümüyle aynı olmalı. İş akışı testleri çalıştırır, paketi oluşturur, `perde-v<sürüm>.zip` ekli bir GitHub sürümü yayımlar ve paketi Chrome Web Store'a taslak olarak yükler.
+- **Chrome Web Store yüklemesi** bir Google Cloud servis hesabıyla yapılır; depoda anahtar, parola ya da token tutulmaz. Tek seferlik kurulum [README.md](README.md#chrome-web-store-upload) dosyasında anlatılır. `CWS_AUTO_PUBLISH` değişkeni `true` olursa iş akışı paketi incelemeye de gönderir; olmazsa incelemeye göndermek geliştirici panelinde elle yapılır.
+
 ## Lisans
 
 [MIT](LICENSE). Üçüncü taraf bileşenler [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) dosyasında listelenir.

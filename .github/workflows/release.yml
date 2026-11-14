@@ -1,11 +1,18 @@
 name: Release
 
-# Push a tag like v0.2.0 to publish a GitHub release with the store package attached.
-# "Run workflow" builds and tests the same way without publishing anything.
+# Push a tag like v0.2.0 to publish a GitHub release with the store package attached and, once the
+# store upload is set up, to send the same package to the Chrome Web Store.
+# "Run workflow" builds and tests the same way without publishing anything; tick "store_upload" to
+# also send the package of the chosen branch to the store.
 on:
   push:
     tags: ['v*']
   workflow_dispatch:
+    inputs:
+      store_upload:
+        description: Upload the package to the Chrome Web Store
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -57,46 +64,81 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: gh release create "$GITHUB_REF_NAME" dist/perde-v*.zip --repo "$GITHUB_REPOSITORY" --title "Perde $GITHUB_REF_NAME" --generate-notes
 
-  # Optional. Runs only once the repository variables CWS_PUBLISHER_ID and CWS_EXTENSION_ID and the
-  # secrets CWS_CLIENT_ID, CWS_CLIENT_SECRET and CWS_REFRESH_TOKEN exist (see README, "Releases").
-  # It uploads the package as a new draft version; it submits it for review only when the variable
-  # CWS_AUTO_PUBLISH is "true".
+  # Optional. Runs only once the repository variables CWS_PUBLISHER_ID, CWS_EXTENSION_ID,
+  # CWS_SERVICE_ACCOUNT and CWS_WORKLOAD_IDENTITY_PROVIDER exist (scripts/setup-store-upload.sh
+  # creates the Google Cloud side and prints them; see README, "Chrome Web Store upload").
+  # It signs in as a Google Cloud service account through workload identity federation, so the
+  # repository holds no key, password or token. It uploads the package as a new draft version and
+  # submits it for review only when the variable CWS_AUTO_PUBLISH is "true".
   chrome-web-store:
     name: Chrome Web Store
     needs: build
-    if: github.ref_type == 'tag' && vars.CWS_EXTENSION_ID != '' && vars.CWS_PUBLISHER_ID != ''
+    if: >-
+      (github.ref_type == 'tag' || inputs.store_upload) &&
+      vars.CWS_PUBLISHER_ID != '' && vars.CWS_EXTENSION_ID != '' &&
+      vars.CWS_SERVICE_ACCOUNT != '' && vars.CWS_WORKLOAD_IDENTITY_PROVIDER != ''
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write # Lets the job prove to Google Cloud which repository it runs for.
     steps:
       - uses: actions/download-artifact@v4
         with:
           name: perde-extension
           path: dist
+      - name: Sign in to Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ vars.CWS_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.CWS_SERVICE_ACCOUNT }}
+          token_format: access_token
+          access_token_scopes: https://www.googleapis.com/auth/chromewebstore
+          access_token_lifetime: 600s
+          create_credentials_file: false
       - name: Upload the package
         env:
-          CWS_CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
-          CWS_CLIENT_SECRET: ${{ secrets.CWS_CLIENT_SECRET }}
-          CWS_REFRESH_TOKEN: ${{ secrets.CWS_REFRESH_TOKEN }}
+          TOKEN: ${{ steps.auth.outputs.access_token }}
           PUBLISHER_ID: ${{ vars.CWS_PUBLISHER_ID }}
           EXTENSION_ID: ${{ vars.CWS_EXTENSION_ID }}
           AUTO_PUBLISH: ${{ vars.CWS_AUTO_PUBLISH }}
         run: |
           set -euo pipefail
-          token=$(curl --fail-with-body -sS https://oauth2.googleapis.com/token \
-            -d client_id="$CWS_CLIENT_ID" -d client_secret="$CWS_CLIENT_SECRET" \
-            -d refresh_token="$CWS_REFRESH_TOKEN" -d grant_type=refresh_token | jq -r .access_token)
-          echo "::add-mask::$token"
-
           base="https://chromewebstore.googleapis.com"
           item="publishers/$PUBLISHER_ID/items/$EXTENSION_ID"
+          package=$(ls dist/perde-v*.zip)
 
-          curl --fail-with-body -sS -X POST "$base/upload/v2/$item:upload" \
-            -H "Authorization: Bearer $token" -H "Content-Type: application/zip" \
-            --data-binary @"$(ls dist/perde-v*.zip)"
-          echo
+          # Prints the answer either way; a failed request stops the job with the store's own message.
+          call() {
+            local answer
+            if ! answer=$(curl --fail-with-body -sS -H "Authorization: Bearer $TOKEN" "$@"); then
+              echo "$answer" >&2
+              echo "::error::The Chrome Web Store refused the request (see the message above)"
+              exit 1
+            fi
+            echo "$answer"
+          }
 
+          answer=$(call -X POST "$base/upload/v2/$item:upload" -H "Content-Type: application/zip" --data-binary @"$package")
+          echo "$answer" | jq .
+          state=$(jq -r '.uploadState // empty' <<<"$answer")
+
+          # Large packages are processed in the background; wait up to five minutes for the verdict.
+          for attempt in $(seq 1 30); do
+            [ "$state" = "IN_PROGRESS" ] || break
+            sleep 10
+            answer=$(call "$base/v2/$item:fetchStatus")
+            state=$(jq -r '.lastAsyncUploadState // empty' <<<"$answer")
+          done
+          if [ "$state" != "SUCCEEDED" ]; then
+            echo "$answer" | jq .
+            echo "::error::The upload ended in state ${state:-unknown}"
+            exit 1
+          fi
+
+          version=$(basename "$package" .zip)
           if [ "$AUTO_PUBLISH" = "true" ]; then
-            curl --fail-with-body -sS -X POST "$base/v2/$item:publish" -H "Authorization: Bearer $token"
-            echo
+            call -X POST "$base/v2/$item:publish" | jq .
+            echo "Uploaded $version and submitted it for review." | tee -a "$GITHUB_STEP_SUMMARY"
           else
-            echo "Uploaded as a draft. Submit it for review in the Developer Dashboard, or set CWS_AUTO_PUBLISH to true."
+            echo "Uploaded $version as a draft. Submit it for review in the Developer Dashboard, or set the variable CWS_AUTO_PUBLISH to true." | tee -a "$GITHUB_STEP_SUMMARY"
           fi
