@@ -1,0 +1,221 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Perde</title>
+    <link rel="stylesheet" href="../shared/ui.css" />
+    <link rel="stylesheet" href="options.css" />
+  </head>
+  <body>
+    <header class="masthead">
+      <h1 class="display" data-i18n="optionsTitle"></h1>
+      <!-- What Perde covers, shown the way it leaves it: out of focus. -->
+      <p class="covered display" aria-hidden="true">
+        <span data-i18n="coverText"></span>
+        <span data-i18n="coverImages"></span>
+        <span data-i18n="coverVideo"></span>
+        <span data-i18n="coverPages"></span>
+      </p>
+    </header>
+
+    <div class="layout">
+      <nav id="sections" class="sections" data-i18n-aria-label="optionsTitle">
+        <a href="#list" data-i18n="sectionList"></a>
+        <a href="#appearance" data-i18n="sectionAppearance"></a>
+        <a href="#behavior" data-i18n="sectionBehavior"></a>
+        <a href="#faces" data-i18n="sectionFaces"></a>
+        <a href="#paused" data-i18n="sectionPaused"></a>
+        <a href="#backup" data-i18n="sectionBackup"></a>
+      </nav>
+
+      <main>
+        <section id="list" tabindex="-1" aria-labelledby="list-heading">
+          <h2 id="list-heading" class="display" data-i18n="sectionList"></h2>
+
+          <form id="add-form" class="add" aria-labelledby="list-heading">
+            <div class="field">
+              <label for="add-name" data-i18n="addLabel"></label>
+              <input
+                id="add-name"
+                name="name"
+                type="text"
+                required
+                minlength="2"
+                maxlength="80"
+                autocomplete="off"
+                autocapitalize="words"
+                spellcheck="false"
+                enterkeyhint="next"
+                aria-describedby="add-name-hint"
+              />
+              <p id="add-name-hint" class="hint" data-i18n="addHint"></p>
+            </div>
+            <div class="field">
+              <label for="add-aliases" data-i18n="aliasesLabel"></label>
+              <input
+                id="add-aliases"
+                name="aliases"
+                type="text"
+                autocomplete="off"
+                spellcheck="false"
+                enterkeyhint="done"
+                aria-describedby="add-aliases-hint"
+              />
+              <p id="add-aliases-hint" class="hint" data-i18n="aliasesHint"></p>
+            </div>
+            <button type="submit" class="primary" data-i18n="add"></button>
+          </form>
+
+          <div id="list-head" class="entry head" aria-hidden="true" hidden>
+            <span></span>
+            <span data-i18n="nameColumn"></span>
+            <span data-i18n="aliasesColumn"></span>
+            <span></span>
+          </div>
+          <ul id="entries" class="entries"></ul>
+          <p id="empty" class="hint" data-i18n="emptyList" hidden></p>
+        </section>
+
+        <section id="appearance" tabindex="-1" aria-labelledby="appearance-heading">
+          <h2 id="appearance-heading" class="display" data-i18n="sectionAppearance"></h2>
+
+          <form id="appearance-form" aria-labelledby="appearance-heading">
+            <fieldset class="looks">
+              <legend data-i18n="modeLegend"></legend>
+              <!-- Each choice shows what it does to a line of text. -->
+              <div class="look">
+                <span class="sample" data-look="blur" aria-hidden="true" data-i18n="sampleText"></span>
+                <input id="mode-blur" name="mode" type="radio" value="blur" aria-describedby="mode-blur-hint" />
+                <label for="mode-blur" data-i18n="modeBlur"></label>
+                <p id="mode-blur-hint" class="hint" data-i18n="modeBlurHint"></p>
+              </div>
+              <div class="look">
+                <span class="sample" data-look="cover" aria-hidden="true" data-i18n="sampleText"></span>
+                <input id="mode-cover" name="mode" type="radio" value="cover" aria-describedby="mode-cover-hint" />
+                <label for="mode-cover" data-i18n="modeCover"></label>
+                <p id="mode-cover-hint" class="hint" data-i18n="modeCoverHint"></p>
+              </div>
+              <div class="look">
+                <span class="sample" data-look="hide" aria-hidden="true" data-i18n="sampleText"></span>
+                <input id="mode-hide" name="mode" type="radio" value="hide" aria-describedby="mode-hide-hint" />
+                <label for="mode-hide" data-i18n="modeHide"></label>
+                <p id="mode-hide-hint" class="hint" data-i18n="modeHideHint"></p>
+              </div>
+            </fieldset>
+
+            <div class="field">
+              <label for="radius"><span data-i18n="radiusLabel"></span>: <output id="radius-value" for="radius"></output></label>
+              <input id="radius" name="blurRadius" type="range" min="4" max="40" step="1" />
+            </div>
+
+            <div class="submit-row">
+              <button type="submit" class="primary" data-i18n="saveAppearance"></button>
+              <span id="appearance-status" class="hint" role="status"></span>
+            </div>
+          </form>
+        </section>
+
+        <section id="behavior" tabindex="-1" aria-labelledby="behavior-heading">
+          <h2 id="behavior-heading" class="display" data-i18n="sectionBehavior"></h2>
+          <div class="setting">
+            <input id="reveal" name="revealOnClick" type="checkbox" role="switch" aria-describedby="reveal-hint" />
+            <div>
+              <label for="reveal" data-i18n="revealLabel"></label>
+              <p id="reveal-hint" class="hint" data-i18n="revealHint"></p>
+            </div>
+          </div>
+          <div class="setting">
+            <input id="block-page" name="blockPage" type="checkbox" role="switch" aria-describedby="block-page-hint" />
+            <div>
+              <label for="block-page" data-i18n="blockPageLabel"></label>
+              <p id="block-page-hint" class="hint" data-i18n="blockPageHint"></p>
+            </div>
+          </div>
+        </section>
+
+        <section id="faces" tabindex="-1" aria-labelledby="faces-heading">
+          <h2 id="faces-heading" class="display" data-i18n="sectionFaces"></h2>
+          <p class="hint lead" data-i18n="facesIntro"></p>
+          <div class="setting">
+            <input id="face-match" name="faceMatch" type="checkbox" role="switch" aria-describedby="face-match-hint" />
+            <div>
+              <label for="face-match" data-i18n="faceMatchLabel"></label>
+              <p id="face-match-hint" class="hint" data-i18n="faceMatchHint"></p>
+            </div>
+          </div>
+          <div class="setting">
+            <input id="face-preblur" name="facePreBlur" type="checkbox" role="switch" aria-describedby="face-preblur-hint" />
+            <div>
+              <label for="face-preblur" data-i18n="facePreBlurLabel"></label>
+              <p id="face-preblur-hint" class="hint" data-i18n="facePreBlurHint"></p>
+            </div>
+          </div>
+          <div class="setting">
+            <input id="face-video" name="faceVideo" type="checkbox" role="switch" aria-describedby="face-video-hint" />
+            <div>
+              <label for="face-video" data-i18n="faceVideoLabel"></label>
+              <p id="face-video-hint" class="hint" data-i18n="faceVideoHint"></p>
+            </div>
+          </div>
+          <div class="setting">
+            <input id="auto-lookup" name="autoLookup" type="checkbox" role="switch" aria-describedby="auto-lookup-hint" />
+            <div>
+              <label for="auto-lookup" data-i18n="autoLookupLabel"></label>
+              <p id="auto-lookup-hint" class="hint" data-i18n="autoLookupHint"></p>
+            </div>
+          </div>
+
+          <form id="strictness-form" aria-labelledby="faces-heading">
+            <fieldset>
+              <legend data-i18n="strictnessLegend"></legend>
+              <div class="choice">
+                <input id="strict-strict" name="faceStrictness" type="radio" value="strict" aria-describedby="strict-strict-hint" />
+                <label for="strict-strict" data-i18n="strictStrict"></label>
+                <p id="strict-strict-hint" class="hint" data-i18n="strictStrictHint"></p>
+              </div>
+              <div class="choice">
+                <input id="strict-balanced" name="faceStrictness" type="radio" value="balanced" aria-describedby="strict-balanced-hint" />
+                <label for="strict-balanced" data-i18n="strictBalanced"></label>
+                <p id="strict-balanced-hint" class="hint" data-i18n="strictBalancedHint"></p>
+              </div>
+              <div class="choice">
+                <input id="strict-loose" name="faceStrictness" type="radio" value="loose" aria-describedby="strict-loose-hint" />
+                <label for="strict-loose" data-i18n="strictLoose"></label>
+                <p id="strict-loose-hint" class="hint" data-i18n="strictLooseHint"></p>
+              </div>
+            </fieldset>
+            <div class="submit-row">
+              <button type="submit" class="primary" data-i18n="saveStrictness"></button>
+              <span id="strictness-status" class="hint" role="status"></span>
+            </div>
+          </form>
+        </section>
+
+        <section id="paused" tabindex="-1" aria-labelledby="paused-heading">
+          <h2 id="paused-heading" class="display" data-i18n="sectionPaused"></h2>
+          <ul id="paused-list" class="paused"></ul>
+          <p id="paused-empty" class="hint" data-i18n="pausedEmpty" hidden></p>
+        </section>
+
+        <section id="backup" tabindex="-1" aria-labelledby="backup-heading">
+          <h2 id="backup-heading" class="display" data-i18n="sectionBackup"></h2>
+          <p class="hint lead" data-i18n="backupIntro"></p>
+          <div class="backup">
+            <button id="export" type="button" data-i18n="exportButton"></button>
+            <div class="field">
+              <label for="import-file" data-i18n="importLabel"></label>
+              <input id="import-file" name="importFile" type="file" accept="application/json,.json" />
+            </div>
+          </div>
+          <p id="backup-status" class="hint" role="status"></p>
+        </section>
+      </main>
+    </div>
+
+    <script src="../shared/common.js"></script>
+    <script src="../shared/ui.js"></script>
+    <script src="options.js"></script>
+  </body>
+</html>

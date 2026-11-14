@@ -1,0 +1,11 @@
+.DS_Store
+node_modules/
+dist/
+
+# Agent skills installed with `npx modern-web-guidance install`; restore them from skills-lock.json
+.agents/
+.claude/
+
+# macOS app build output
+mac/.build/
+mac/build/

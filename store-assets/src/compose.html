@@ -1,0 +1,33 @@
+<!doctype html>
+<!-- Template for the store screenshots: a headline on the left, a real capture of the extension
+     on the right. scripts/store-graphics.cjs fills it in and takes the picture. -->
+<meta charset="utf-8" />
+<style>
+  @font-face {
+    font-family: 'Instrument Sans';
+    font-weight: 400 700;
+    font-stretch: 75% 100%;
+    src: url('../../perde/vendor/fonts/instrument-sans-latin.woff2') format('woff2');
+  }
+  html, body { margin: 0; }
+  body {
+    position: relative; width: 1280px; height: 800px; overflow: hidden;
+    background: #f5f4f0; color: #111; font-family: 'Instrument Sans', sans-serif;
+  }
+  .copy { position: absolute; inset: 56px auto 56px 64px; width: 400px; display: flex; flex-direction: column; }
+  .copy img { width: 52px; height: 52px; }
+  h1 { margin: auto 0 18px; font-size: 62px; font-weight: 700; letter-spacing: -0.04em; line-height: 0.98; text-wrap: balance; }
+  p { margin: 0; font-size: 20px; line-height: 1.4; color: #6b6a66; text-wrap: pretty; }
+  /* The capture runs off the right and bottom edges: it is a view of something larger. */
+  .main { position: absolute; left: 520px; top: 64px; width: 900px; border: 1.5px solid #111; background: #fff; }
+  .main img, .float img { display: block; width: 100%; }
+  .float { position: absolute; right: 56px; top: 250px; width: 342px; border: 1.5px solid #111; box-shadow: 0 30px 70px rgb(0 0 0 / 0.2); }
+  .float:empty, .float:not(:has(img[src])) { display: none; }
+</style>
+<div class="copy">
+  <img src="../../perde/icons/icon.svg" alt="" />
+  <h1 id="headline"></h1>
+  <p id="sub"></p>
+</div>
+<div class="main"><img id="main" alt="" /></div>
+<div class="float"><img id="float" alt="" /></div>

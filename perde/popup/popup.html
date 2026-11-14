@@ -1,0 +1,82 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Perde</title>
+    <link rel="stylesheet" href="../shared/ui.css" />
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header id="stage" class="stage" data-open>
+      <div class="stage-top">
+        <h1 class="display">Perde</h1>
+        <label class="visually-hidden" for="enabled" data-i18n="masterToggle"></label>
+        <input id="enabled" name="enabled" type="checkbox" role="switch" />
+      </div>
+
+      <!-- A small window onto a page: a person and what is written about them. While Perde is
+           covering this site, frosted panels are drawn across it; otherwise they are pushed aside. -->
+      <div class="window" aria-hidden="true">
+        <svg class="scene" viewBox="0 0 306 92">
+          <g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+            <path d="M16 22h44M16 34h34M16 46h40M16 58h26M16 70h36" />
+            <circle cx="122" cy="34" r="15" />
+            <path d="M92 92c0-21 13-32 30-32s30 11 30 32" />
+            <path d="M172 26h112" stroke-width="7" />
+            <path d="M172 46h118M172 58h96M172 70h108" />
+          </g>
+        </svg>
+        <div class="panes">
+          <span class="pane"><svg viewBox="0 0 76 108" preserveAspectRatio="none"><path class="edge" d="M1 0V107L58 97" /><path class="curl" d="M58 97C66 96 72 94 76 91V95C75 101 70 106 63 107C59 105 57 101 58 97Z" /></svg></span>
+          <span class="pane"><svg viewBox="0 0 76 108" preserveAspectRatio="none"><path class="edge" d="M1 0V107L58 97" /><path class="curl" d="M58 97C66 96 72 94 76 91V95C75 101 70 106 63 107C59 105 57 101 58 97Z" /></svg></span>
+          <span class="pane"><svg viewBox="0 0 76 108" preserveAspectRatio="none"><path class="edge" d="M1 0V107L58 97M75 0V92" /><path class="curl" d="M58 97C66 96 72 94 76 91V95C75 101 70 106 63 107C59 105 57 101 58 97Z" /></svg></span>
+        </div>
+      </div>
+
+      <div class="stage-status" aria-live="polite">
+        <p id="site-status" class="status"></p>
+        <p id="site-host" class="host"></p>
+      </div>
+    </header>
+
+    <main>
+      <form id="add-form" class="add">
+        <label for="add-name" data-i18n="addLabel"></label>
+        <div class="add-row">
+          <input
+            id="add-name"
+            name="name"
+            type="text"
+            required
+            minlength="2"
+            maxlength="80"
+            autocomplete="off"
+            autocapitalize="words"
+            spellcheck="false"
+            enterkeyhint="done"
+            aria-describedby="add-hint"
+          />
+          <button type="submit" class="primary" data-i18n="add"></button>
+        </div>
+        <p id="add-hint" class="hint"></p>
+      </form>
+
+      <ul id="entries" class="entries"></ul>
+      <p id="veil-hint" class="hint" data-i18n="veilHint" hidden></p>
+      <p id="empty" class="hint" data-i18n="emptyList" hidden></p>
+    </main>
+
+    <footer>
+      <div class="site-pause">
+        <input id="pause" name="pause" type="checkbox" role="switch" />
+        <label for="pause" data-i18n="pauseSite"></label>
+      </div>
+      <button id="open-options" type="button" class="quiet" data-i18n="allSettings"></button>
+    </footer>
+
+    <script src="../shared/common.js"></script>
+    <script src="../shared/ui.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>

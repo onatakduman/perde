@@ -1,0 +1,18 @@
+{
+  "name": "perde",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Browser extension that blurs text, images and video that mention or show the people you choose.",
+  "license": "MIT",
+  "scripts": {
+    "test": "node tests/e2e.cjs",
+    "test:faces": "node tests/faces.cjs",
+    "package": "bash scripts/package.sh",
+    "icons": "node scripts/render-icons.cjs",
+    "store-graphics": "node scripts/store-graphics.cjs",
+    "vendor": "bash scripts/vendor-face-api.sh && bash scripts/vendor-fonts.sh"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.59.0"
+  }
+}

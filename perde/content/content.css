@@ -1,0 +1,36 @@
+/* Keep in sync with SHADOW_CSS in content.js, which repeats the element rules for shadow roots. */
+
+[data-perde="blur"]:not([data-perde-revealed]) {
+  filter: blur(var(--perde-radius, 16px)) !important;
+  cursor: pointer !important;
+  user-select: none !important;
+}
+
+/* contrast(0) turns every pixel into the same mid grey as the background, so nothing is legible. */
+[data-perde="cover"]:not([data-perde-revealed]) {
+  filter: contrast(0) !important;
+  background-color: #808080 !important;
+  cursor: pointer !important;
+  user-select: none !important;
+}
+
+[data-perde="hide"] {
+  display: none !important;
+}
+
+/* An image waiting for the face check: kept blurred until the answer arrives. */
+[data-perde-check] {
+  filter: blur(var(--perde-radius, 16px)) !important;
+}
+
+/* Hides the page for the few milliseconds it takes to read the block list. */
+html[data-perde-pending] {
+  opacity: 0 !important;
+}
+
+/* The page title matched: cover the whole page. */
+html[data-perde-page] body {
+  filter: blur(32px) !important;
+  pointer-events: none !important;
+  user-select: none !important;
+}

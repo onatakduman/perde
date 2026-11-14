@@ -1,0 +1,34 @@
+<!doctype html>
+<!-- Source of promo-marquee-1400x560.png; rendered by scripts/store-graphics.cjs. -->
+<meta charset="utf-8" />
+<style>
+  @font-face {
+    font-family: 'Instrument Sans';
+    font-weight: 400 700;
+    font-stretch: 75% 100%;
+    src: url('../../perde/vendor/fonts/instrument-sans-latin.woff2') format('woff2');
+  }
+  html, body { margin: 0; }
+  body {
+    position: relative; width: 1400px; height: 560px; overflow: hidden; box-sizing: border-box; padding: 64px 80px;
+    background: #f5f4f0; color: #111; font-family: 'Instrument Sans', sans-serif;
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .top { display: flex; align-items: center; gap: 20px; }
+  .top img { width: 64px; height: 64px; display: block; }
+  .top span { font-size: 24px; font-weight: 600; }
+  h1, p { margin: 0; font-weight: 700; letter-spacing: -0.04em; line-height: 1; white-space: nowrap; }
+  h1 { font-size: 190px; }
+  p { display: flex; gap: 0.3em; font-size: 96px; padding-block-end: 10px; }
+  p span:nth-child(1) { filter: blur(4px); }
+  p span:nth-child(2) { filter: blur(8px); opacity: 0.8; }
+  p span:nth-child(3) { filter: blur(13px); opacity: 0.6; }
+  .popup { position: absolute; right: 96px; top: 70px; width: 342px; border: 1.5px solid #111; box-shadow: 0 30px 70px rgb(0 0 0 / 0.2); }
+  .popup img { display: block; width: 100%; }
+</style>
+<div class="top"><img src="../../perde/icons/icon.svg" alt="" /><span>Blur what you choose not to see</span></div>
+<div>
+  <h1>Perde</h1>
+  <p><span>Text</span><span>Images</span><span>Video</span></p>
+</div>
+<div class="popup"><img id="popup" alt="" /></div>

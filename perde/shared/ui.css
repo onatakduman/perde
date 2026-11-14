@@ -1,0 +1,212 @@
+/* Tokens, type and controls shared by the popup and the settings page.
+   The look: paper and ink. Black line on off-white, tight heavy grotesque type, hairline rules,
+   and blur itself as the only ornament, because blur is what the extension does. One crimson
+   signal colour marks what is switched on or live. */
+
+@font-face {
+  font-family: 'Instrument Sans';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400 700;
+  font-stretch: 75% 100%;
+  src: url('../vendor/fonts/instrument-sans-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'Instrument Sans';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400 700;
+  font-stretch: 75% 100%;
+  src: url('../vendor/fonts/instrument-sans-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+:root {
+  color-scheme: light dark;
+
+  --paper: light-dark(#f5f4f0, #121212);
+  --sheet: light-dark(#ffffff, #1c1c1b); /* A lighter sheet on the paper: fields and cards. */
+  --ink: light-dark(#111111, #f5f4f0);
+  --ink-2: light-dark(#6b6a66, #a3a29d);
+  --hairline: light-dark(#d9d7d0, #343432);
+  --signal: light-dark(#c4275a, #ff5c8d);
+  --danger: light-dark(#b3261e, #ff8a80);
+
+  --stroke: 1.5px; /* The weight of every drawn line: frames, fields, the window in the popup. */
+
+  accent-color: var(--ink);
+  font: 14px/1.45 'Instrument Sans', system-ui, sans-serif;
+  font-size-adjust: from-font; /* Keeps the layout steady if the fallback font is shown first. */
+  background: var(--paper);
+  color: var(--ink);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+/* Headings: heavy and set tight. */
+.display {
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1;
+}
+
+.visually-hidden {
+  position: absolute;
+  clip-path: inset(50%);
+  overflow: hidden;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  white-space: nowrap;
+}
+
+.hint {
+  color: var(--ink-2);
+  font-size: 12.5px;
+}
+
+label {
+  font-weight: 600;
+}
+
+/* ---------------------------------------------------------------- controls */
+
+input[type='text'] {
+  font: inherit;
+  font-size: max(1rem, 1em);
+  min-width: 0;
+  padding: 8px 10px;
+  border: var(--stroke) solid var(--ink);
+  border-radius: 6px;
+  background: var(--sheet);
+  color: var(--ink);
+}
+
+input[type='text']:user-invalid {
+  border-color: var(--danger);
+}
+
+button {
+  font: inherit;
+  font-weight: 600;
+  padding: 8px 14px;
+  border: var(--stroke) solid var(--ink);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+button:hover {
+  background: color-mix(in oklab, var(--ink) 8%, transparent);
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+button.primary {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+button.primary:hover {
+  background: color-mix(in oklab, var(--ink) 82%, var(--paper));
+}
+
+/* An action inside a line of text: an underlined word, not a box. */
+button.quiet {
+  padding: 2px 0;
+  border: 0;
+  border-radius: 2px;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+button.quiet:hover {
+  background: transparent;
+  text-decoration-thickness: 2px;
+}
+
+button.icon {
+  padding: 4px 8px;
+  border-color: transparent;
+  color: var(--ink-2);
+  line-height: 1;
+}
+
+button.icon:hover {
+  color: var(--danger);
+}
+
+:is(input, button, a):focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+/* Chrome has no native switch control yet, so this is a checkbox with role="switch".
+   Off is an empty outline, on is filled with the signal colour; the knob also moves. */
+input[role='switch'] {
+  appearance: none;
+  flex: none;
+  position: relative;
+  inline-size: 38px;
+  block-size: 22px;
+  margin: 0;
+  border: var(--stroke) solid var(--ink);
+  border-radius: 999px;
+  background: transparent;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+input[role='switch']::before {
+  content: '';
+  position: absolute;
+  inset-block-start: 3px;
+  inset-inline-start: 3px;
+  inline-size: 13px;
+  block-size: 13px;
+  border-radius: 50%;
+  background: var(--ink);
+  transition: translate 0.15s;
+}
+
+input[role='switch']:checked {
+  background: var(--signal);
+}
+
+input[role='switch']:checked::before {
+  translate: 16px 0;
+  background: var(--paper);
+}
+
+input[role='switch']:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  input[role='switch'],
+  input[role='switch']::before {
+    transition: none;
+  }
+}

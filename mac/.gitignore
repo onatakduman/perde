@@ -1,0 +1,10 @@
+# SwiftPM build products
+.build/
+# Output of scripts/build-app.sh (the app bundle, with the copied face-api files inside)
+build/
+# In case the face-api files are copied next to the sources for development
+Resources/face-api/
+.swiftpm/
+*.xcodeproj/
+xcuserdata/
+.DS_Store
