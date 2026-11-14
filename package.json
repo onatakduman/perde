@@ -10,6 +10,7 @@
     "package": "bash scripts/package.sh",
     "icons": "node scripts/render-icons.cjs",
     "store-graphics": "node scripts/store-graphics.cjs",
+    "listing-helper": "node scripts/listing-helper.cjs",
     "vendor": "bash scripts/vendor-face-api.sh && bash scripts/vendor-fonts.sh"
   },
   "devDependencies": {

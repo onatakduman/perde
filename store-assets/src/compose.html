@@ -23,7 +23,7 @@
     background: #f5f4f0; color: #111; font-family: 'Instrument Sans', sans-serif;
   }
   .copy { position: absolute; inset: 56px auto 56px 64px; width: 400px; display: flex; flex-direction: column; }
-  .copy img { width: 52px; height: 52px; }
+  .copy img { width: 52px; height: 52px; border: 1.5px solid #111; border-radius: 21%; box-sizing: border-box; }
   h1 { margin: auto 0 18px; font-size: 62px; font-weight: 700; letter-spacing: -0.04em; line-height: 0.98; text-wrap: balance; }
   p { margin: 0; font-size: 20px; line-height: 1.4; color: #6b6a66; text-wrap: pretty; }
   /* The capture runs off the right and bottom edges: it is a view of something larger. */
@@ -33,7 +33,7 @@
   .float:empty, .float:not(:has(img[src])) { display: none; }
 </style>
 <div class="copy">
-  <img src="../../perde/icons/icon.svg" alt="" />
+  <img src="../../perde/icons/icon-128.png" alt="" />
   <h1 id="headline"></h1>
   <p id="sub"></p>
 </div>

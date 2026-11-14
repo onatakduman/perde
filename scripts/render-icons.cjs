@@ -1,22 +1,31 @@
-// Renders perde/icons/icon-*.png from the two SVG sources with Chromium.
+// Renders perde/icons/icon-*.png from store-assets/src/icon.html with Chromium.
 //   PLAYWRIGHT_CORE=<path to playwright-core> CHROMIUM=<path to a Chromium binary> node scripts/render-icons.cjs
-const fs = require('node:fs');
 const path = require('node:path');
 const { chromium } = require(process.env.PLAYWRIGHT_CORE || 'playwright-core');
 
-const ICONS = path.resolve(__dirname, '..', 'perde', 'icons');
-const SIZES = { 16: 'icon-small.svg', 32: 'icon-small.svg', 48: 'icon.svg', 128: 'icon.svg' };
+const ROOT = path.resolve(__dirname, '..');
+const ICONS = path.join(ROOT, 'perde', 'icons');
+const SOURCE = path.join(ROOT, 'store-assets', 'src', 'icon.html');
+const DRAWN_AT = 512; // The source is drawn on a 512 pixel square and scaled down.
+const SIZES = { 16: 'small', 32: 'small', 48: 'large', 128: 'large' };
 
 (async () => {
   const browser = await chromium.launch({ executablePath: process.env.CHROMIUM || undefined });
-  const page = await browser.newPage();
-  for (const [size, source] of Object.entries(SIZES)) {
-    const svg = fs.readFileSync(path.join(ICONS, source), 'utf8');
-    await page.setViewportSize({ width: Number(size), height: Number(size) });
-    await page.setContent(`<style>html,body{margin:0;background:transparent}svg{display:block;width:${size}px;height:${size}px}</style>${svg}`);
+  for (const [size, variant] of Object.entries(SIZES)) {
+    // The device scale factor does the downscaling, so the browser draws each size directly.
+    const context = await browser.newContext({
+      viewport: { width: DRAWN_AT, height: DRAWN_AT },
+      deviceScaleFactor: Number(size) / DRAWN_AT,
+    });
+    const page = await context.newPage();
+    await page.goto(`file://${SOURCE}`);
+    await page.evaluate(async (id) => {
+      document.getElementById(id).classList.add('on');
+      await document.fonts.ready;
+    }, variant);
     await page.screenshot({ path: path.join(ICONS, `icon-${size}.png`), omitBackground: true });
+    await context.close();
     console.log(`icon-${size}.png`);
   }
-
   await browser.close();
 })();

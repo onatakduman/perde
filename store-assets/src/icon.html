@@ -1,0 +1,54 @@
+<!doctype html>
+<!-- Source of the extension icon; scripts/render-icons.cjs renders perde/icons/icon-*.png from it.
+     The letter P, half of it behind a frosted pane with a curled corner: the popup's window in one glyph.
+     #large is used for 48 and 128 pixels, #small (no curl, heavier line) for 16 and 32. -->
+<meta charset="utf-8" />
+<style>
+  @font-face {
+    font-family: 'Instrument Sans';
+    font-weight: 400 700;
+    font-stretch: 75% 100%;
+    src: url('../../perde/vendor/fonts/instrument-sans-latin.woff2') format('woff2');
+  }
+  html, body { margin: 0; background: transparent; }
+  .icon {
+    position: absolute; inset: 0 auto auto 0; width: 512px; height: 512px; overflow: hidden; display: none;
+    border-radius: 104px; background: #f5f4f0; color: #111; font-family: 'Instrument Sans', sans-serif;
+  }
+  .icon.on { display: block; }
+  .letter {
+    position: absolute; inset: 0; display: grid; place-items: center; padding-bottom: 20px;
+    font-size: 400px; font-weight: 700; letter-spacing: -0.04em; line-height: 1;
+  }
+  .pane { position: absolute; inset: 0 0 0 50%; }
+  .glass { position: absolute; inset: 0; }
+  .pane svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+
+  #large .glass {
+    background: rgb(245 244 240 / 0.3); backdrop-filter: blur(9px);
+    clip-path: polygon(0 0, 100% 0, 100% 80%, 70% 86%, 0 100%);
+  }
+
+  /* At 16 pixels a blur is invisible and a curl is noise: the pane is a tint with a firm edge. */
+  #small .letter { font-size: 430px; }
+  #small .glass { background: rgb(245 244 240 / 0.62); clip-path: polygon(0 0, 100% 0, 100% 82%, 0 100%); }
+</style>
+
+<div class="icon" id="large">
+  <div class="letter">P</div>
+  <div class="pane">
+    <div class="glass"></div>
+    <svg viewBox="0 0 256 512">
+      <path d="M8 0V508L176 448" fill="none" stroke="#111" stroke-width="16" />
+      <path d="M176 448C206 444 236 432 256 416V440C250 472 228 500 200 508C182 498 172 474 176 448Z" fill="#111" />
+    </svg>
+  </div>
+</div>
+
+<div class="icon" id="small">
+  <div class="letter">P</div>
+  <div class="pane">
+    <div class="glass"></div>
+    <svg viewBox="0 0 256 512"><path d="M16 0V496L256 420" fill="none" stroke="#111" stroke-width="32" /></svg>
+  </div>
+</div>

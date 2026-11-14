@@ -1,5 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
-  <!-- The panels on their own, on whole pixels at 16 and 32: the window frame does not survive that small. -->
-  <rect width="128" height="128" rx="24" fill="#c4275a"/>
-  <path fill="#fff" d="M20 20h24v80l-24 8zM52 20h24v64l-24 8zM84 20h24v48l-24 8z"/>
-</svg>
