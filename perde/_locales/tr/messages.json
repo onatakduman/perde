@@ -94,5 +94,12 @@
   "coverText": {"message": "Yazı"},
   "coverImages": {"message": "Görsel"},
   "coverVideo": {"message": "Video"},
-  "coverPages": {"message": "Sayfa"}
+  "coverPages": {"message": "Sayfa"},
+  "scopeLegend": {"message": "Ne kadarı kapansın"},
+  "scopeName": {"message": "Yalnızca isim"},
+  "scopeNameHint": {"message": "İsmin kendisi kapanır; çevresindeki yazı okunur kalır."},
+  "scopeBlock": {"message": "Satır ya da paragraf"},
+  "scopeBlockHint": {"message": "İsmin geçtiği satır ya da paragraf kapanır."},
+  "scopeCard": {"message": "Tüm kart"},
+  "scopeCardHint": {"message": "İsmin geçtiği arama sonucu, gönderi ya da video kutusu, küçük resmiyle birlikte kapanır."}
 }

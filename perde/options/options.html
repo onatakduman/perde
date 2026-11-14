@@ -82,6 +82,25 @@
           <h2 id="appearance-heading" class="display" data-i18n="sectionAppearance"></h2>
 
           <form id="appearance-form" aria-labelledby="appearance-heading">
+            <fieldset>
+              <legend data-i18n="scopeLegend"></legend>
+              <div class="choice">
+                <input id="scope-name" name="scope" type="radio" value="name" aria-describedby="scope-name-hint" />
+                <label for="scope-name" data-i18n="scopeName"></label>
+                <p id="scope-name-hint" class="hint" data-i18n="scopeNameHint"></p>
+              </div>
+              <div class="choice">
+                <input id="scope-block" name="scope" type="radio" value="block" aria-describedby="scope-block-hint" />
+                <label for="scope-block" data-i18n="scopeBlock"></label>
+                <p id="scope-block-hint" class="hint" data-i18n="scopeBlockHint"></p>
+              </div>
+              <div class="choice">
+                <input id="scope-card" name="scope" type="radio" value="card" aria-describedby="scope-card-hint" />
+                <label for="scope-card" data-i18n="scopeCard"></label>
+                <p id="scope-card-hint" class="hint" data-i18n="scopeCardHint"></p>
+              </div>
+            </fieldset>
+
             <fieldset class="looks">
               <legend data-i18n="modeLegend"></legend>
               <!-- Each choice shows what it does to a line of text. -->

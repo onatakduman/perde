@@ -11,7 +11,7 @@ Her karar senin bilgisayarında verilir. Hesap, sunucu ya da analitik yoktur.
 | İçerik | Nasıl tanınır | Ne zaman kapanır |
 |---|---|---|
 | Yazı | İsim ya da diğer yazımlarından biri; büyük/küçük harf ve aksan farkı gözetilmez (`DENİZ KARACA'nın`, `Deniz Karaca` ile eşleşir; `Karacaoğlan`, `Karaca` ile eşleşmez) | İlk çizimden önce |
-| Yazının içinde olduğu kart | Eşleşmeyi içeren en küçük tekrarlayan blok: arama sonucu, tweet, küçük resmiyle video kutusu | İlk çizimden önce |
+| İstersen isimden fazlası | Bir ayar: yalnızca isim (varsayılan), satırı ya da paragrafı, ya da içinde olduğu kartın tamamı (arama sonucu, tweet, küçük resmiyle video kutusu) | İlk çizimden önce |
 | Yazıyla tarif edilen görseller | Alt metni, dosya adı, görseli saran bağlantı, resim altı yazısı | İlk çizimden önce |
 | Yalnızca kişiyi gösteren görseller | Cihazda çalışan bir yüz modeli, yüzleri o isme ait referans yüzlerle karşılaştırır | Görsel, kontrol bitene kadar bulanık kalır; sonra açılır ya da kapalı kalır |
 | Oynayan video | Saniyede yaklaşık iki kare kontrol edilir | Yüz ekrandayken; sahnenin ilk anı görünebilir |

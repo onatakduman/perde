@@ -132,7 +132,8 @@ async function capture(locale, portraits) {
       { id: 'e2', name: 'Selim Aydogan', aliases: [], enabled: true, faceCount: 4, lookup: { state: 'done', title: 'Selim Aydogan', lang: 'en' } },
     ];
     // faceMatch is off here because these made-up people have no real reference faces.
-    await setStorage({ faceMatch: false, entries });
+    // The card scope shows best in a picture what the extension does; the default covers only the name.
+    await setStorage({ faceMatch: false, scope: 'card', entries });
 
     const page = await context.newPage();
     await page.goto(`${origin}/`);

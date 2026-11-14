@@ -19,6 +19,7 @@
   const TASK_BUDGET_MS = 50; // A task longer than this counts as a long task.
   const MAX_CARD_TEXT = 1200; // A card (tweet, search result, video tile) holds less text than this.
   const MAX_BLOCK_TEXT = 3000; // Never blur a block with more text than this; wrap the matching text instead.
+  const MAX_CARD_AREA = 0.3; // ...and takes up less of the window than this.
   const MIN_FACE_IMAGE = 64; // Smaller images cannot hold a recognisable face.
   const VIDEO_SAMPLE_MS = 600; // How often a playing video is checked.
   const VIDEO_FRAME_SIDE = 480; // Frames are scaled down to this before they are sent to the model.
@@ -38,6 +39,8 @@
     [${ATTR}="cover"]:not([${REVEALED}]) { filter: contrast(0) !important; background-color: #808080 !important; cursor: pointer !important; user-select: none !important; }
     [${ATTR}="hide"] { display: none !important; }
     [${CHECK}] { filter: blur(var(--perde-radius, 16px)) !important; }
+    ::highlight(perde-cover) { color: transparent; background-color: #808080; }
+    ::highlight(perde-hide) { color: transparent; }
   `;
 
   const root = document.documentElement;
@@ -53,6 +56,15 @@
   const videoTimers = new Map(); // video -> interval id, only while it plays
   const faceCoveredVideos = new WeakSet();
   const nearViewport = new IntersectionObserver(onImagesNearViewport, { rootMargin: '600px' });
+
+  // Names covered on their own are drawn with the CSS Custom Highlight API: a Range per match,
+  // so the page's own elements and text nodes are never wrapped, split or moved.
+  const canHighlight = typeof Highlight === 'function' && Boolean(CSS.highlights);
+  const highlights = new Map(); // "cover", "hide" or "blur:<text colour>" -> Highlight
+  const MAX_BLUR_COLOURS = 32; // Beyond this many text colours on one page, the rest share a grey.
+  let blurSheet = null; // One ::highlight() rule per text colour, shared with every shadow root.
+  const nameRanges = new Map(); // Text node -> its Range objects
+  const revealedText = new WeakSet(); // Text nodes the user uncovered by clicking
 
   const shadowRoots = []; // WeakRef<ShadowRoot>
   const knownShadowRoots = new WeakSet();
@@ -141,6 +153,8 @@
       for (const el of scope.querySelectorAll(`[${ATTR}]`)) unmark(el);
       for (const el of scope.querySelectorAll(`[${CHECK}]`)) el.removeAttribute(CHECK);
     }
+    for (const highlight of highlights.values()) highlight.clear();
+    nameRanges.clear();
     nearViewport.disconnect();
     imageState = new WeakMap(); // Answers still on their way now belong to no image and are dropped.
     for (const timer of videoTimers.values()) clearInterval(timer);
@@ -188,6 +202,7 @@
 
   function enqueue(node) {
     if (node.nodeType !== 1 && node.nodeType !== 3) return;
+    if (node.nodeType === 3) uncoverNames(node); // Its text changed: whatever was covered in it is stale.
     if (!node.isConnected) return;
 
     const el = node.nodeType === 1 ? node : node.parentElement;
@@ -242,6 +257,9 @@
       console.warn('[Perde] scan failed', error);
     } finally {
       processing = false;
+    }
+    for (const node of nameRanges.keys()) {
+      if (!node.isConnected) uncoverNames(node); // The page removed the text; let its ranges go.
     }
     checkPage();
     scheduleCount();
@@ -325,7 +343,84 @@
   function checkText(node) {
     const value = node.nodeValue;
     if (value.length < matcher.minLength || !matcher.test(value)) return null;
+    if (settings.scope === 'name' && canHighlight) {
+      coverNames(node);
+      return null;
+    }
     return mark(containerForText(node));
+  }
+
+  // ---------------------------------------------------------------- covering a name on its own
+
+  // A highlight can only paint a text shadow in a colour named in its rule, and a blurred name
+  // should keep the colour of the text it replaces. So blurred names are grouped by text colour,
+  // each group with its own registered highlight and its own rule.
+  function highlightFor(node) {
+    const mode = settings.mode;
+    let key = mode;
+    let colour = null;
+    if (mode === 'blur') {
+      colour = node.parentElement ? getComputedStyle(node.parentElement).color : 'rgb(128, 128, 128)';
+      key = `blur:${colour}`;
+      if (!highlights.has(key) && highlights.size >= MAX_BLUR_COLOURS) {
+        colour = 'rgb(128, 128, 128)';
+        key = `blur:${colour}`;
+      }
+    }
+
+    let highlight = highlights.get(key);
+    if (!highlight) {
+      highlight = new Highlight();
+      const name = colour ? `perde-blur-${highlights.size}` : `perde-${mode}`;
+      highlights.set(key, highlight);
+      CSS.highlights.set(name, highlight);
+      if (colour) {
+        // Three stacked shadows: one is soft enough but too faint, three read as a solid smudge.
+        blurSheet ??= new CSSStyleSheet();
+        blurSheet.insertRule(`::highlight(${name}) { color: transparent; text-shadow: 0 0 0.75em ${colour}, 0 0 0.75em ${colour}, 0 0 0.75em ${colour}; }`);
+      }
+    }
+    if (blurSheet) adoptSheet(document, blurSheet);
+    return highlight;
+  }
+
+  // Pages replace their adopted style sheets now and then, so this is checked on every use.
+  function adoptSheet(scope, sheet) {
+    if (!scope.adoptedStyleSheets.includes(sheet)) scope.adoptedStyleSheets = [...scope.adoptedStyleSheets, sheet];
+  }
+
+  function coverNames(node) {
+    uncoverNames(node);
+    if (revealedText.has(node)) return;
+    const highlight = highlightFor(node);
+    const ranges = matcher.findAll(node.nodeValue).map(({ start, end }) => {
+      const range = new Range();
+      range.setStart(node, start);
+      range.setEnd(node, end);
+      highlight.add(range);
+      return range;
+    });
+    if (ranges.length) nameRanges.set(node, ranges);
+  }
+
+  function uncoverNames(node) {
+    const ranges = nameRanges.get(node);
+    if (!ranges) return;
+    for (const highlight of highlights.values()) {
+      for (const range of ranges) highlight.delete(range);
+    }
+    nameRanges.delete(node);
+  }
+
+  // The text node whose covered name is under the pointer, if any.
+  function coveredTextAt(x, y) {
+    if (!nameRanges.size) return null;
+    const node = document.caretPositionFromPoint?.(x, y)?.offsetNode ?? document.caretRangeFromPoint?.(x, y)?.startContainer;
+    const ranges = node && nameRanges.get(node);
+    if (!ranges) return null;
+    // The caret lookup snaps to the nearest text, so make sure the pointer is really on a covered name.
+    const hit = ranges.some((range) => [...range.getClientRects()].some((box) => x >= box.left && x <= box.right && y >= box.top && y <= box.bottom));
+    return hit ? node : null;
   }
 
   // An image has no text of its own, so look at what describes it: alt text, file name, link and caption.
@@ -514,14 +609,21 @@
 
   function containerForText(node) {
     const parent = node.parentElement;
-    if (!parent) return wrapText(node); // Text sitting directly in a shadow root.
+    if (!parent) return coverTextOnly(node); // Text sitting directly in a shadow root.
     if (parent.hasAttribute(WRAP)) return parent;
 
-    const picked = pickContainer(parent);
+    const picked = settings.scope === 'card' ? pickContainer(parent) : blockOf(parent);
     if (picked === document.body || picked === root || picked.textContent.length > MAX_BLOCK_TEXT) {
-      return wrapText(node);
+      return coverTextOnly(node);
     }
     return picked;
+  }
+
+  // The block around the match is too large to cover: cover the name itself instead.
+  function coverTextOnly(node) {
+    if (!canHighlight) return wrapText(node);
+    coverNames(node);
+    return null;
   }
 
   // Prefer the whole card (thumbnail + title + description) over the single line that matched.
@@ -531,9 +633,14 @@
     let mediaWrapper = null;
     let el = base;
 
+    const viewportArea = window.innerWidth * window.innerHeight;
     for (let depth = 0; depth < 10 && el && el !== document.body && el !== root; depth++) {
       const length = el.textContent.length;
       if (length > MAX_CARD_TEXT) break;
+      // A card is a small thing. A section with little text can still fill the screen
+      // (a film page: poster, title, a short summary), and that is not a card.
+      const box = el.getBoundingClientRect();
+      if (depth > 0 && box.width * box.height > viewportArea * MAX_CARD_AREA) break;
 
       const hasMedia = el.querySelector(MEDIA_SELECTOR) !== null;
       if (el.matches(CARD_SELECTOR) || isRepeated(el)) {
@@ -603,7 +710,9 @@
 
     try {
       shadowSheet ??= createShadowSheet();
-      shadow.adoptedStyleSheets = [...shadow.adoptedStyleSheets, shadowSheet];
+      blurSheet ??= new CSSStyleSheet();
+      adoptSheet(shadow, shadowSheet);
+      adoptSheet(shadow, blurSheet);
     } catch {
       const style = document.createElement('style');
       style.setAttribute(UI_ATTR, '');
@@ -635,6 +744,18 @@
 
   function onClick(event) {
     if (!active) return;
+    const text = coveredTextAt(event.clientX, event.clientY);
+    if (text) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      if (settings.revealOnClick && settings.mode !== 'hide' && event.type === 'click') {
+        revealedText.add(text);
+        uncoverNames(text);
+        scheduleCount();
+      }
+      return;
+    }
+
     const target = event.composedPath().find(
       (node) => node.nodeType === 1 && node.hasAttribute(ATTR) && !node.hasAttribute(REVEALED),
     );
@@ -777,6 +898,7 @@
 
   function countCovered() {
     let count = pageBlocked ? 1 : 0;
+    for (const ranges of nameRanges.values()) count += ranges.length;
     for (const scope of [document, ...liveShadowRoots()]) {
       count += scope.querySelectorAll(`[${ATTR}]:not([${REVEALED}])`).length;
     }

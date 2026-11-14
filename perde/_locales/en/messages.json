@@ -94,5 +94,12 @@
   "coverText": {"message": "Text"},
   "coverImages": {"message": "Images"},
   "coverVideo": {"message": "Video"},
-  "coverPages": {"message": "Pages"}
+  "coverPages": {"message": "Pages"},
+  "scopeLegend": {"message": "How much is covered"},
+  "scopeName": {"message": "Only the name"},
+  "scopeNameHint": {"message": "The name itself is covered; the text around it stays readable."},
+  "scopeBlock": {"message": "Its line or paragraph"},
+  "scopeBlockHint": {"message": "The line or paragraph that contains the name is covered."},
+  "scopeCard": {"message": "The whole card"},
+  "scopeCardHint": {"message": "The search result, post or video tile around the name is covered, thumbnail included."}
 }

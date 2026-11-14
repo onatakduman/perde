@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Her Şey Ortada</title>
+    <style>
+      body { margin: 0; font: 16px/1.5 system-ui, sans-serif; background: #1d1b19; color: #eee; }
+      nav { padding: 16px 32px; }
+      /* One large section with little text in it: a poster, a title, two short lines. */
+      .detail { display: grid; grid-template-columns: 300px 1fr 260px; gap: 32px; padding: 32px; min-height: 620px; }
+      .poster { width: 300px; height: 440px; border-radius: 12px; display: block; }
+      .rating { background: #eee; color: #222; border-radius: 12px; padding: 16px; align-self: start; }
+    </style>
+  </head>
+  <body>
+    <!-- A film page in the shape that used to be blurred whole. Blocked name in the tests: "Deniz Karaca". -->
+    <nav>Filmler · Sinemalar · Kampanyalar</nav>
+    <div class="wrap">
+      <div class="detail" id="detail">
+        <div><img class="poster" id="poster" alt="Her Şey Ortada" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='440'%3E%3Crect width='300' height='440' fill='%23c9b8a0'/%3E%3C/svg%3E" /></div>
+        <div id="info">
+          <h1 id="film-title">Her Şey Ortada</h1>
+          <p id="director">Yönetmen: Deniz Karaca, Lale Oran</p>
+          <p id="formats">Formatlar: 2D, Altyazılı</p>
+          <h4>Film Özeti</h4>
+          <p id="summary">Adı skandallarla anılan kurucu Deniz Karaca, cezaevine girmesine otuz dört gün kala bir film ekibini her adımını kaydetmeye davet eder.</p>
+        </div>
+        <aside class="rating" id="rating"><b>65</b><p>İzleyenler nasıl buldular?</p></aside>
+      </div>
+      <div class="detail" id="more"><div></div><div><p>Benzer filmler</p></div><div></div></div>
+    </div>
+  </body>
+</html>

@@ -11,7 +11,7 @@ Everything is decided on your computer. There is no account, no server and no an
 | Content | How it is recognised | When it is covered |
 |---|---|---|
 | Text | The name or one of its other spellings, ignoring case and accents (`DENİZ KARACA'nın` matches `Deniz Karaca`; `Karacaoğlan` does not match `Karaca`) | Before the first paint |
-| The card around the text | The smallest repeated block that holds the match: a search result, a tweet, a video tile with its thumbnail | Before the first paint |
+| More than the name, if you want | A setting: only the name (the default), its line or paragraph, or the whole card around it (a search result, a tweet, a video tile with its thumbnail) | Before the first paint |
 | Images described in text | Alt text, file name, the link around the image, the caption | Before the first paint |
 | Images that only show the person | An on-device face model compares faces with reference faces for that name | The image stays blurred until the check is done, then opens or stays covered |
 | Playing video | A frame is checked about twice a second | While the face is on screen; the first moment of a scene can be visible |
@@ -94,7 +94,7 @@ The tests load the unpacked extension into Chromium. Branded Google Chrome no lo
 - **Release** (`.github/workflows/release.yml`) runs when a tag is pushed. Bump `version` in `perde/manifest.json` and `package.json`, commit, then:
 
   ```bash
-  git tag v0.2.1 && git push origin v0.2.1
+  git tag v0.2.2 && git push origin v0.2.2
   ```
 
   The tag has to match the manifest version. The workflow tests, packages, and creates a GitHub release with `perde-v<version>.zip` attached.

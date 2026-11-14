@@ -11,6 +11,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_CORE || 'playwright-core');
 
 const EXTENSION = path.resolve(__dirname, '..', 'perde');
 const FIXTURE = fs.readFileSync(path.join(__dirname, 'fixture.html'), 'utf8');
+const FILM = fs.readFileSync(path.join(__dirname, 'film.html'), 'utf8');
 const SHOTS = process.argv[2];
 
 const results = [];
@@ -18,6 +19,9 @@ function check(name, ok, detail = '') {
   results.push(ok);
   console.log(`${ok ? 'PASS' : 'FAIL'}  ${name}${ok || !detail ? '' : `  -> ${detail}`}`);
 }
+
+// Injected into the page: every range of every highlight Perde registered.
+const coveredRanges = `[...CSS.highlights].filter(([name]) => name.startsWith('perde-')).flatMap(([, highlight]) => [...highlight])`;
 
 const marked = (page, selector) => page.evaluate((s) => document.querySelector(s)?.getAttribute('data-perde') ?? null, selector);
 const settle = (page) => page.waitForTimeout(350);
@@ -27,6 +31,8 @@ async function main() {
     response.setHeader('content-type', 'text/html; charset=utf-8');
     if (request.url.startsWith('/kisi')) {
       response.end('<!doctype html><title>Deniz Karaca - Vikipedi</title><body><h1>Biyografi</h1><p>Uzun bir yazı.</p></body>');
+    } else if (request.url.startsWith('/film')) {
+      response.end(FILM);
     } else {
       response.end(FIXTURE);
     }
@@ -49,7 +55,7 @@ async function main() {
     check('service worker starts', Boolean(extensionId));
 
     const setStorage = (patch) => worker.evaluate((p) => chrome.storage.local.set(p), patch);
-    await setStorage({ autoLookup: false, entries: [{ id: 'e1', name: 'Deniz Karaca', aliases: ['Karaca'], enabled: true }] });
+    await setStorage({ autoLookup: false, scope: 'card', entries: [{ id: 'e1', name: 'Deniz Karaca', aliases: ['Karaca'], enabled: true }] });
 
     const page = await context.newPage();
     const errors = [];
@@ -121,6 +127,77 @@ async function main() {
     await settle(page);
     check('master switch off uncovers everything', (await page.evaluate(() => document.querySelectorAll('[data-perde]').length)) === 0);
     await setStorage({ enabled: true });
+    await settle(page);
+
+    // --- covering only the name (the default scope)
+    await setStorage({ scope: 'name' });
+    await settle(page);
+    const names = await page.evaluate((ranges) => {
+      const covered = eval(ranges).map((range) => range.toString());
+      return {
+        covered,
+        // Nothing but images may carry the element marker in this scope.
+        markedTags: [...new Set([...document.querySelectorAll('[data-perde]')].map((el) => el.localName))],
+        textNodes: document.getElementById('p-upper').childNodes.length,
+        groups: [...CSS.highlights.keys()].filter((name) => name.startsWith('perde-blur-')).length,
+      };
+    }, coveredRanges);
+    check(
+      'only the names themselves are covered',
+      names.covered.includes('DENİZ KARACA') && names.covered.includes('Karaca') && names.covered.every((text) => /karaca/i.test(text)) && names.covered.length >= 4,
+      JSON.stringify(names),
+    );
+    check('images are still covered, and nothing else is marked', names.markedTags.join() === 'img', JSON.stringify(names.markedTags));
+    check('the page markup is left untouched', names.textNodes === 1);
+    if (SHOTS) await page.screenshot({ path: path.join(SHOTS, 'page-names.png') });
+
+    check('blurred names are grouped by text colour (black text and blue links)', names.groups >= 2, String(names.groups));
+
+    const nameBox = await page.evaluate((ranges) => {
+      const range = eval(ranges).find((item) => item.startContainer.parentElement.id === 'p-upper');
+      const box = range.getClientRects()[0];
+      return { x: box.left + box.width / 2, y: box.top + box.height / 2 };
+    }, coveredRanges);
+    await page.mouse.click(nameBox.x, nameBox.y);
+    await settle(page);
+    const afterNameClick = await page.evaluate((ranges) => eval(ranges).some((range) => range.startContainer.parentElement?.id === 'p-upper'), coveredRanges);
+    check('clicking a covered name uncovers it', afterNameClick === false);
+
+    await page.evaluate(() => {
+      document.getElementById('p-clean').textContent = 'Şimdi bu paragrafta da Deniz Karaca var.';
+    });
+    await settle(page);
+    check('a name that appears later is covered too', await page.evaluate((ranges) => eval(ranges).some((range) => range.startContainer.parentElement?.id === 'p-clean'), coveredRanges));
+    await page.evaluate(() => {
+      document.getElementById('p-clean').textContent = 'Bu paragrafta kimseden söz edilmiyor.';
+    });
+    await setStorage({ scope: 'card' });
+    await settle(page);
+    check('switching back to cards clears the covered names', await page.evaluate((ranges) => eval(ranges).length === 0 && document.getElementById('p-upper').getAttribute('data-perde') === 'blur', coveredRanges));
+
+    // --- a film page: one big section with little text must not be taken for a card
+    const film = await context.newPage();
+    await film.goto(`${origin}/film`);
+    await settle(film);
+    const filmCard = await film.evaluate(() => {
+      const area = (el) => { const box = el.getBoundingClientRect(); return box.width * box.height; };
+      const marked = [...document.querySelectorAll('[data-perde]')];
+      return {
+        ids: marked.map((el) => el.id || el.localName),
+        largestShare: Math.max(0, ...marked.map(area)) / (innerWidth * innerHeight),
+        title: document.getElementById('film-title').closest('[data-perde]') !== null,
+        rating: document.getElementById('rating').closest('[data-perde]') !== null,
+      };
+    });
+    check('card scope covers the two lines with the name, not the whole film section', filmCard.ids.includes('director') && filmCard.ids.includes('summary') && !filmCard.title && !filmCard.rating && filmCard.largestShare < 0.3, JSON.stringify(filmCard));
+
+    await setStorage({ scope: 'name' });
+    await settle(film);
+    const filmNames = await film.evaluate((ranges) => ({ covered: eval(ranges).map((range) => range.toString()), marked: document.querySelectorAll('[data-perde]').length }), coveredRanges);
+    check('name scope covers exactly the two names on the film page', filmNames.covered.length === 2 && filmNames.covered.every((text) => text === 'Deniz Karaca') && filmNames.marked === 0, JSON.stringify(filmNames));
+    if (SHOTS) await film.screenshot({ path: path.join(SHOTS, 'film-names.png') });
+    await film.close();
+    await setStorage({ scope: 'card' });
     await settle(page);
 
     // --- popup talks to the page

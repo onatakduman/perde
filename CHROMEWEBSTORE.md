@@ -24,7 +24,7 @@ Blurs text, images and video that mention or show the people you choose, on ever
 Perde covers content about people you would rather not see. Add a name, and text, images and video that mention or show that person are blurred on every site before the page appears.
 
 FEATURES
-• Text — the name and its other spellings are matched regardless of capital letters and accents, and the whole card around the match is covered: the search result, the post, the video tile with its thumbnail.
+• Text — the name and its other spellings are matched regardless of capital letters and accents. You choose how much is covered: only the name, its line or paragraph, or the whole card around it (the search result, the post, the video tile with its thumbnail).
 • Images — pictures described by their caption, link or file name are covered at once. Pictures that only show the person are recognised by their face.
 • Video — a playing video is covered while the person is on screen.
 • Whole pages — a page whose title matches is covered entirely, with the choice to go back or show it anyway.
@@ -52,7 +52,7 @@ PERMISSIONS
 SUPPORT
 Perde is open source. Report a problem or suggest a change at: https://github.com/onatakduman/perde/issues
 
-Version 0.2.0 — first public release.
+Version 0.2.1 — covers only the name by default; you can still choose the paragraph or the whole card.
 ```
 
 **Detailed Description, Turkish** (paste into the Turkish listing; in the dashboard choose the language at the top of the Store listing tab)
@@ -61,7 +61,7 @@ Version 0.2.0 — first public release.
 Perde, görmek istemediğin kişilerle ilgili içeriği kapatır. Bir isim ekle; o kişiden bahseden ya da onu gösteren yazı, görsel ve videolar her sitede, sayfa görünmeden bulanıklaştırılır.
 
 ÖZELLİKLER
-• Yazı — isim ve diğer yazımları büyük/küçük harf ve aksan farkı gözetmeden eşleşir; eşleşmenin içinde olduğu kartın tamamı kapanır: arama sonucu, gönderi, küçük resmiyle video kutusu.
+• Yazı — isim ve diğer yazımları büyük/küçük harf ve aksan farkı gözetmeden eşleşir. Ne kadarının kapanacağını sen seçersin: yalnızca isim, satırı ya da paragrafı, ya da içinde olduğu kartın tamamı (arama sonucu, gönderi, küçük resmiyle video kutusu).
 • Görseller — resim altı yazısı, bağlantısı ya da dosya adıyla tarif edilen görseller hemen kapanır. Yalnızca kişiyi gösteren görseller yüzünden tanınır.
 • Video — oynayan video, kişi ekrandayken kapanır.
 • Tüm sayfa — başlığı eşleşen sayfa tümüyle kapanır; geri dönebilir ya da yine de gösterebilirsin.
@@ -89,7 +89,7 @@ Dışarı giden tek şey eklediğin isimdir: diğer yazımları ve referans yüz
 DESTEK
 Perde açık kaynaklıdır. Sorun bildirmek ya da öneride bulunmak için: https://github.com/onatakduman/perde/issues
 
-Sürüm 0.2.0 — ilk genel sürüm.
+Sürüm 0.2.1 — varsayılan olarak yalnızca ismi kapatır; istersen paragrafı ya da kartın tamamını seçebilirsin.
 ```
 
 **Category** [REQUIRED]
@@ -182,7 +182,7 @@ Open it in a private window before submitting; a dead link is an automatic rejec
 
 **Additional instructions** (max 500 characters)
 
-No login or account is needed. 1. Click the Perde icon, type a name (for example: Albert Einstein) and press Block. 2. Open any page that mentions the name, such as a news search: matching text, cards and images are blurred. A page whose title matches is covered entirely, with a "Show anyway" button. 3. Within a few seconds the extension finds reference faces on Wikipedia; photos of that person are then blurred even with no caption. Click a blurred block to reveal it.
+No login or account is needed. 1. Click the Perde icon, type a name (for example: Albert Einstein) and press Block. 2. Open any page that mentions the name, such as a news search: the name is blurred wherever it appears. A page whose title matches is covered entirely, with a "Show anyway" button. 3. Within a few seconds the extension finds reference faces on Wikipedia; photos of that person are then blurred even with no caption. Click a blurred name or image to reveal it.
 
 ## Distribution
 
@@ -211,7 +211,8 @@ https://github.com/onatakduman/perde
 
 | Version | Date | Changes | Status |
 |---------|------|---------|--------|
-| 0.2.0 | 2026-11-14 | First public release: text, cards, described images, whole pages; face matching for images and playing video; reference faces from Wikipedia; three looks; per-site pause; backup; English and Turkish. | Draft |
+| 0.2.1 | 2026-11-14 | Covers only the name by default instead of the block around it (new "How much is covered" setting: name, paragraph or card); the card choice no longer swallows large page sections; new icon. | Draft |
+| 0.2.0 | 2026-11-14 | First upload: text, cards, described images, whole pages; face matching for images and playing video; reference faces from Wikipedia; three looks; per-site pause; backup; English and Turkish. | Draft |
 
 ## Review Notes
 

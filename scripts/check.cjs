@@ -38,7 +38,10 @@ for (const file of Object.values(manifest.icons)) {
 }
 
 const locales = Object.fromEntries(
-  fs.readdirSync(path.join(EXTENSION, '_locales')).map((locale) => [locale, JSON.parse(fs.readFileSync(path.join(EXTENSION, '_locales', locale, 'messages.json'), 'utf8'))]),
+  fs
+    .readdirSync(path.join(EXTENSION, '_locales'), { withFileTypes: true })
+    .filter((entry) => entry.isDirectory()) // Finder leaves .DS_Store files around.
+    .map((entry) => [entry.name, JSON.parse(fs.readFileSync(path.join(EXTENSION, '_locales', entry.name, 'messages.json'), 'utf8'))]),
 );
 const reference = Object.keys(locales[manifest.default_locale]);
 for (const [locale, messages] of Object.entries(locales)) {

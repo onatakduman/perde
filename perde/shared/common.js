@@ -5,6 +5,9 @@
 
   const MODES = ['blur', 'cover', 'hide'];
 
+  // How much is covered around a matching name: the name alone, its line or paragraph, or the whole card.
+  const SCOPES = ['name', 'block', 'card'];
+
   // Largest distance between two face descriptors that still counts as the same person.
   const STRICTNESS = Object.freeze({ strict: 0.48, balanced: 0.55, loose: 0.62 });
 
@@ -15,6 +18,7 @@
   const DEFAULTS = Object.freeze({
     enabled: true,
     mode: 'blur',
+    scope: 'name',
     blurRadius: 16,
     revealOnClick: true,
     blockPage: true,
@@ -31,6 +35,7 @@
     const data = { ...DEFAULTS, ...raw };
     data.enabled = data.enabled !== false;
     data.mode = MODES.includes(data.mode) ? data.mode : DEFAULTS.mode;
+    data.scope = SCOPES.includes(data.scope) ? data.scope : DEFAULTS.scope;
     const radius = Number(data.blurRadius);
     data.blurRadius = Number.isFinite(radius) ? Math.min(40, Math.max(4, Math.round(radius))) : DEFAULTS.blurRadius;
     data.revealOnClick = data.revealOnClick !== false;
@@ -169,13 +174,42 @@
     const sorted = [...terms].sort((a, b) => b.length - a.length);
     const body = sorted.map((term) => escapeRegExp(term).replace(/[ -]+/g, '[\\s-]+')).join('|');
     const pattern = new RegExp(`(?<![\\p{L}\\p{N}])(?:${body})(?![\\p{L}\\p{N}])`, 'u');
+    const everyMatch = new RegExp(pattern.source, 'gu');
     const minLength = Math.min(...sorted.map((term) => term.length));
 
     return {
       minLength,
       test: (text) => text.length >= minLength && pattern.test(fold(text)),
       testUrl: (url) => url.length >= minLength && pattern.test(foldUrl(url)),
+      // Where each match sits in the original text: [{ start, end }].
+      findAll(text) {
+        const { folded, starts, ends } = foldWithOffsets(text);
+        return [...folded.matchAll(everyMatch)].map((match) => ({
+          start: starts[match.index],
+          end: ends[match.index + match[0].length - 1],
+        }));
+      },
     };
+  }
+
+  // Folding can change the length of a text (a ligature becomes two letters), so a position in
+  // the folded text is not a position in the original. Fold one character at a time and remember
+  // where each folded character came from.
+  function foldWithOffsets(text) {
+    let folded = '';
+    const starts = [];
+    const ends = [];
+    for (let index = 0; index < text.length; ) {
+      const character = String.fromCodePoint(text.codePointAt(index));
+      const piece = fold(character);
+      for (let k = 0; k < piece.length; k++) {
+        starts.push(index);
+        ends.push(index + character.length);
+      }
+      folded += piece;
+      index += character.length;
+    }
+    return { folded, starts, ends };
   }
 
   function findEntry(entries, name) {
@@ -190,6 +224,7 @@
   globalThis.Perde = {
     DEFAULTS,
     MODES,
+    SCOPES,
     STRICTNESS,
     FACE_DATA_KEY,
     loadFaceData,

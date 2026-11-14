@@ -18,6 +18,18 @@
   display: none !important;
 }
 
+/* A name covered on its own, without touching the page's markup. The letters are made
+   transparent and replaced by a grey bar or by nothing; the blurred look needs the text's own
+   colour, so content.js writes one rule per colour it meets. */
+::highlight(perde-cover) {
+  color: transparent;
+  background-color: #808080;
+}
+
+::highlight(perde-hide) {
+  color: transparent;
+}
+
 /* An image waiting for the face check: kept blurred until the answer arrives. */
 [data-perde-check] {
   filter: blur(var(--perde-radius, 16px)) !important;

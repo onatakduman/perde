@@ -62,6 +62,7 @@
   // Forms keep what the user picked until they press save, so they are filled in only once.
   function renderForms() {
     els.appearanceForm.elements.mode.value = settings.mode;
+    els.appearanceForm.elements.scope.value = settings.scope;
     els.radius.value = String(settings.blurRadius);
     renderRadius();
     els.strictnessForm.elements.faceStrictness.value = settings.faceStrictness;
@@ -251,6 +252,7 @@
     event.preventDefault();
     const saved = await persist({
       mode: els.appearanceForm.elements.mode.value,
+      scope: els.appearanceForm.elements.scope.value,
       blurRadius: Number(els.radius.value),
     });
     if (saved) els.appearanceStatus.textContent = t('saved');
