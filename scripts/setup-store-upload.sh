@@ -30,6 +30,18 @@ fi
 
 exists() { "$@" >/dev/null 2>&1; }
 
+# Rights on a project or account created a moment ago take up to a minute to reach every service,
+# so a refused step is tried again before giving up.
+retry() {
+  local attempt
+  for attempt in 1 2 3 4 5 6; do
+    "$@" && return
+    echo "Not ready yet, trying again in 10 seconds..." >&2
+    sleep 10
+  done
+  "$@"
+}
+
 echo "1/5 Project $PROJECT_ID"
 exists gcloud projects describe "$PROJECT_ID" ||
   gcloud projects create "$PROJECT_ID" --name="Perde - Store Upload"
@@ -47,11 +59,11 @@ exists gcloud iam service-accounts describe "$ACCOUNT_EMAIL" --project="$PROJECT
 
 echo "4/5 Sign-in for GitHub Actions"
 exists gcloud iam workload-identity-pools describe "$POOL" --project="$PROJECT_ID" --location=global ||
-  gcloud iam workload-identity-pools create "$POOL" --project="$PROJECT_ID" --location=global \
+  retry gcloud iam workload-identity-pools create "$POOL" --project="$PROJECT_ID" --location=global \
     --display-name="GitHub - Actions"
 exists gcloud iam workload-identity-pools providers describe "$PROVIDER" \
   --project="$PROJECT_ID" --location=global --workload-identity-pool="$POOL" ||
-  gcloud iam workload-identity-pools providers create-oidc "$PROVIDER" \
+  retry gcloud iam workload-identity-pools providers create-oidc "$PROVIDER" \
     --project="$PROJECT_ID" --location=global --workload-identity-pool="$POOL" \
     --display-name="GitHub - Release Workflow" \
     --issuer-uri="https://token.actions.githubusercontent.com" \
@@ -60,18 +72,8 @@ exists gcloud iam workload-identity-pools providers describe "$PROVIDER" \
 
 echo "5/5 Let that repository act as the service account"
 MEMBER="principalSet://iam.googleapis.com/projects/$PROJECT_NUMBER/locations/global/workloadIdentityPools/$POOL/attribute.repository_id/$REPOSITORY_ID"
-# A service account created a moment ago is not always visible to the next command yet.
-for attempt in 1 2 3 4 5 6; do
-  if gcloud iam service-accounts add-iam-policy-binding "$ACCOUNT_EMAIL" --project="$PROJECT_ID" \
-    --role=roles/iam.workloadIdentityUser --member="$MEMBER" >/dev/null; then
-    break
-  fi
-  if [ "$attempt" = 6 ]; then
-    echo "Could not grant access to the service account; run the script again in a minute." >&2
-    exit 1
-  fi
-  sleep 10
-done
+retry gcloud iam service-accounts add-iam-policy-binding "$ACCOUNT_EMAIL" --project="$PROJECT_ID" \
+  --role=roles/iam.workloadIdentityUser --member="$MEMBER" >/dev/null
 
 cat <<EOF
 
