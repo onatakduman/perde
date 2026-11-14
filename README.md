@@ -88,6 +88,22 @@ npm run vendor      # re-create perde/vendor (face model and fonts) from the npm
 
 The tests load the unpacked extension into Chromium. Branded Google Chrome no longer accepts `--load-extension`, so they need Chromium or Chrome for Testing; point `CHROMIUM` at a binary to use a specific one.
 
+## Continuous integration and releases
+
+- **CI** (`.github/workflows/ci.yml`) runs on every push to `main` and on pull requests: `npm run check`, the end-to-end tests in Chromium, the store package as a build artifact, and `swift build` plus `swift test` for the macOS app.
+- **Release** (`.github/workflows/release.yml`) runs when a tag is pushed. Bump `version` in `perde/manifest.json` and `package.json`, commit, then:
+
+  ```bash
+  git tag v0.2.1 && git push origin v0.2.1
+  ```
+
+  The tag has to match the manifest version. The workflow tests, packages, and creates a GitHub release with `perde-v<version>.zip` attached.
+- **Chrome Web Store upload** is an optional third job in the release workflow. It stays off until these exist in the repository settings:
+  - variables `CWS_PUBLISHER_ID` (Developer Dashboard, Publisher > Settings) and `CWS_EXTENSION_ID` (the 32-character item id);
+  - secrets `CWS_CLIENT_ID`, `CWS_CLIENT_SECRET` and `CWS_REFRESH_TOKEN`, from a Google Cloud OAuth client with the Chrome Web Store API enabled ([guide](https://developer.chrome.com/docs/webstore/using-api)).
+
+  It uploads the package as a draft. Set the variable `CWS_AUTO_PUBLISH` to `true` to also submit it for review. The store listing itself (texts, screenshots, privacy answers) cannot be set through the API and stays in the dashboard.
+
 ## License
 
 [MIT](LICENSE). Third-party components are listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

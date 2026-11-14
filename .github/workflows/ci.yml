@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  extension:
+    name: Extension
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Check scripts, manifest and locales
+        run: npm run check
+      # The end-to-end tests load the unpacked extension, which needs Chromium rather than branded Chrome.
+      - name: Install Chromium
+        run: npx playwright-core install --with-deps chromium
+      - name: End-to-end tests
+        run: npm test
+      - name: Build the store package
+        run: npm run package
+      - uses: actions/upload-artifact@v4
+        with:
+          name: perde-extension
+          path: dist/perde-v*.zip
+          if-no-files-found: error
+
+  mac:
+    name: macOS app
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: mac
+    steps:
+      - uses: actions/checkout@v4
+      - run: swift --version
+      - name: Build
+        run: swift build -c release
+      - name: Unit tests
+        run: swift test

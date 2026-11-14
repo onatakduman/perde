@@ -176,6 +176,14 @@ https://github.com/onatakduman/perde/blob/main/PRIVACY.md
 
 Open it in a private window before submitting; a dead link is an automatic rejection.
 
+## Test Instructions
+
+**Username / Password:** leave empty. The extension has no login.
+
+**Additional instructions** (max 500 characters)
+
+No login or account is needed. 1. Click the Perde icon, type a name (for example: Albert Einstein) and press Block. 2. Open any page that mentions the name, such as a news search: matching text, cards and images are blurred. A page whose title matches is covered entirely, with a "Show anyway" button. 3. Within a few seconds the extension finds reference faces on Wikipedia; photos of that person are then blurred even with no caption. Click a blurred block to reveal it.
+
 ## Distribution
 
 **Visibility**: Public

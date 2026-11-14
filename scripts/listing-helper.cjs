@@ -73,7 +73,12 @@ const sections = [
     ],
   },
   {
-    title: '5. Distribution',
+    title: '5. Test instructions',
+    note: 'Username ve Password alanlarını boş bırak; eklentide giriş yok.',
+    fields: [['Additional instructions', lineAfter('**Additional instructions**')]],
+  },
+  {
+    title: '6. Distribution',
     note: 'Visibility: Public. Regions: All regions. Sonra "Save draft" ve hazır olduğunda "Submit for review".',
     fields: [],
   },

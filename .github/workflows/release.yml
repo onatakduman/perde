@@ -1,0 +1,102 @@
+name: Release
+
+# Push a tag like v0.2.0 to publish a GitHub release with the store package attached.
+# "Run workflow" builds and tests the same way without publishing anything.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Test and package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - name: The tag must match the version in the manifest
+        if: github.ref_type == 'tag'
+        run: |
+          version=$(node -p "require('./perde/manifest.json').version")
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match manifest version $version"
+            exit 1
+          fi
+      - name: Install Chromium
+        run: npx playwright-core install --with-deps chromium
+      - run: npm test
+      - run: npm run package
+      - uses: actions/upload-artifact@v4
+        with:
+          name: perde-extension
+          path: dist/perde-v*.zip
+          if-no-files-found: error
+
+  github-release:
+    name: GitHub release
+    needs: build
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: perde-extension
+          path: dist
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" dist/perde-v*.zip --repo "$GITHUB_REPOSITORY" --title "Perde $GITHUB_REF_NAME" --generate-notes
+
+  # Optional. Runs only once the repository variables CWS_PUBLISHER_ID and CWS_EXTENSION_ID and the
+  # secrets CWS_CLIENT_ID, CWS_CLIENT_SECRET and CWS_REFRESH_TOKEN exist (see README, "Releases").
+  # It uploads the package as a new draft version; it submits it for review only when the variable
+  # CWS_AUTO_PUBLISH is "true".
+  chrome-web-store:
+    name: Chrome Web Store
+    needs: build
+    if: github.ref_type == 'tag' && vars.CWS_EXTENSION_ID != '' && vars.CWS_PUBLISHER_ID != ''
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: perde-extension
+          path: dist
+      - name: Upload the package
+        env:
+          CWS_CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
+          CWS_CLIENT_SECRET: ${{ secrets.CWS_CLIENT_SECRET }}
+          CWS_REFRESH_TOKEN: ${{ secrets.CWS_REFRESH_TOKEN }}
+          PUBLISHER_ID: ${{ vars.CWS_PUBLISHER_ID }}
+          EXTENSION_ID: ${{ vars.CWS_EXTENSION_ID }}
+          AUTO_PUBLISH: ${{ vars.CWS_AUTO_PUBLISH }}
+        run: |
+          set -euo pipefail
+          token=$(curl --fail-with-body -sS https://oauth2.googleapis.com/token \
+            -d client_id="$CWS_CLIENT_ID" -d client_secret="$CWS_CLIENT_SECRET" \
+            -d refresh_token="$CWS_REFRESH_TOKEN" -d grant_type=refresh_token | jq -r .access_token)
+          echo "::add-mask::$token"
+
+          base="https://chromewebstore.googleapis.com"
+          item="publishers/$PUBLISHER_ID/items/$EXTENSION_ID"
+
+          curl --fail-with-body -sS -X POST "$base/upload/v2/$item:upload" \
+            -H "Authorization: Bearer $token" -H "Content-Type: application/zip" \
+            --data-binary @"$(ls dist/perde-v*.zip)"
+          echo
+
+          if [ "$AUTO_PUBLISH" = "true" ]; then
+            curl --fail-with-body -sS -X POST "$base/v2/$item:publish" -H "Authorization: Bearer $token"
+            echo
+          else
+            echo "Uploaded as a draft. Submit it for review in the Developer Dashboard, or set CWS_AUTO_PUBLISH to true."
+          fi
